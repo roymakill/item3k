@@ -114,6 +114,16 @@ select { max-width: 180px; }
 .card:hover { border-color: rgba(245, 158, 11, .8); transform: translateY(-1px); }
 .gridView .card { min-height: 184px; text-align: center; }
 .listView .card { display: grid; grid-template-columns: 54px 1fr auto; align-items: center; gap: 12px; }
+.gridView .monsterCard {
+  min-height: 260px;
+  padding: 12px 16px 14px;
+  background: #151019;
+  border-color: #3a2632;
+}
+.listView .monsterCard {
+  grid-template-columns: 62px 1fr auto;
+  min-height: 92px;
+}
 .thumb {
   width: 68px;
   height: 68px;
@@ -189,7 +199,82 @@ select { max-width: 180px; }
   padding: 0;
   border-radius: 8px;
 }
+.monsterCard .save {
+  top: 12px;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  background: transparent;
+  color: #f4f4f5;
+  padding: 0;
+}
+.monsterCard .save svg {
+  width: 22px;
+  height: 22px;
+}
 .saved { color: var(--amber); }
+.monsterName {
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.25;
+  margin-top: 4px;
+  color: #f4f4f5;
+  overflow-wrap: anywhere;
+}
+.monsterMeta {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #d4d4d8;
+}
+.monsterStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+.monsterStats div {
+  min-height: 38px;
+  display: grid;
+  place-items: center;
+  gap: 1px;
+  padding: 5px 4px;
+  border: 1px solid #332438;
+  border-radius: 5px;
+  background: #1c1821;
+}
+.monsterStats span {
+  font-size: 9px;
+  color: #9ca3af;
+}
+.monsterStats b {
+  font-size: 10px;
+  color: #67e8f9;
+}
+.monsterStats div:nth-child(2) b { color: #f87171; }
+.monsterStats div:nth-child(3) b { color: #93c5fd; }
+.monsterFoot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 11px;
+  border-top: 1px solid #2a202b;
+  color: #71717a;
+  font-size: 11px;
+}
+.monsterFoot svg {
+  width: 13px;
+  height: 13px;
+}
+.listView .monsterName { margin-top: 0; text-align: left; }
+.listView .monsterMeta { text-align: left; }
+.listView .monsterStats {
+  grid-template-columns: repeat(3, 54px);
+  margin-top: 0;
+}
+.listView .monsterFoot { display: none; }
 
 dialog {
   width: min(760px, calc(100vw - 24px));

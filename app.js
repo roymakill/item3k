@@ -158,6 +158,7 @@ function render() {
 
 function cardHtml(row, index) {
   const type = typeOf(row);
+  if (type === "monster") return monsterCardHtml(row, index);
   const key = saveKey(row);
   const name = row.name_th || row.name || row.code || "-";
   const sub = type === "map" ? `${row.monsters.length.toLocaleString()} monster / ${row.bosses.length.toLocaleString()} boss` : type === "monster" ? `Lv.${row.level || "-"} HP ${row.hp || "-"}` : `${row.sub_name || row.cat_name || "-"} #${row.real_id || row.name_id || "-"}`;
@@ -174,6 +175,27 @@ function cardHtml(row, index) {
       <div class="meta">${escapeHtml(sub)}</div>
       <div class="pillrow">${pills.map((p) => `<span class="pill">${escapeHtml(p)}</span>`).join("")}</div>
     </div>
+  </article>`;
+}
+
+function monsterCardHtml(row, index) {
+  const key = saveKey(row);
+  const name = row.name_th || row.name || row.code || "-";
+  const hp = Number(row.hp || 0).toLocaleString();
+  const atk = String(row.damage || "-").replace(",", " - ");
+  const def = row.defense || "-";
+  const drops = (row.drops || []).length;
+  return `<article class="card monsterCard" data-index="${index}">
+    <button class="save ${state.saved[key] ? "saved" : ""}" data-save="${index}" type="button" title="บันทึก"><i data-lucide="bookmark"></i></button>
+    <div class="thumb monsterThumb"><img src="${imageUrl(row, "monster")}" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+    <div class="monsterName">${escapeHtml(name)}</div>
+    <div class="monsterMeta">LV ${escapeHtml(row.level || "-")} HP ${hp}</div>
+    <div class="monsterStats">
+      <div><span>HP</span><b>${hp}</b></div>
+      <div><span>ATK</span><b>${escapeHtml(atk)}</b></div>
+      <div><span>DEF</span><b>${escapeHtml(def)}</b></div>
+    </div>
+    <div class="monsterFoot"><i data-lucide="gift"></i> ดรอป ${drops.toLocaleString()} รายการ</div>
   </article>`;
 }
 
