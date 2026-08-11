@@ -144,20 +144,24 @@ select { max-width: 180px; }
   image-rendering: auto;
 }
 .gridView .monsterThumb {
-  width: 116px;
-  height: 88px;
-  min-width: 116px;
-  max-width: 116px;
-  margin-top: 8px;
+  width: 82px;
+  height: 82px;
+  min-width: 82px;
+  max-width: 82px;
+  margin-top: 10px;
 }
 .listView .monsterThumb {
-  width: 78px;
+  width: 62px;
   height: 62px;
-  min-width: 78px;
-  max-width: 78px;
+  min-width: 62px;
+  max-width: 62px;
 }
 .monsterThumb img {
-  object-position: center bottom;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-position: center center;
 }
 .mapThumb {
   color: var(--cyan);
@@ -226,10 +230,10 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
   max-width: 96px;
 }
 .detailHead .monsterThumb {
-  width: 180px;
-  height: 132px;
-  min-width: 180px;
-  max-width: 180px;
+  width: 120px;
+  height: 120px;
+  min-width: 120px;
+  max-width: 120px;
 }
 .detail h2 { margin: 0 0 6px; font-size: 24px; }
 .statgrid, .dropList { display: grid; gap: 8px; margin-top: 16px; }
