@@ -126,6 +126,11 @@ select { max-width: 180px; }
 }
 .listView .thumb { width: 54px; height: 54px; margin: 0; }
 .thumb img { max-width: 100%; max-height: 100%; object-fit: contain; image-rendering: auto; }
+.mapThumb {
+  color: var(--cyan);
+  background: linear-gradient(135deg, rgba(34, 211, 238, .12), rgba(245, 158, 11, .08));
+}
+.mapThumb svg { width: 34px; height: 34px; }
 .name { font-weight: 800; font-size: 14px; overflow-wrap: anywhere; }
 .meta { color: var(--muted); font-size: 11px; margin-top: 3px; }
 .pillrow { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; margin-top: 9px; }

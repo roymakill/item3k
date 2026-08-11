@@ -7,6 +7,7 @@ const state = {
   mode: localStorage.getItem("3kdb_mode") || "grid",
   items: [],
   monsters: [],
+  maps: [],
   filtered: [],
   saved: JSON.parse(localStorage.getItem("3kdb_saved") || "{}"),
 };
@@ -16,6 +17,7 @@ const els = {
   status: $("statusText"),
   itemTab: $("itemTab"),
   monsterTab: $("monsterTab"),
+  mapTab: $("mapTab"),
   favTab: $("favTab"),
   search: $("searchInput"),
   cat: $("categoryFilter"),
@@ -74,7 +76,7 @@ function fixMojibake(value) {
 }
 
 function textOf(row) {
-  return `${row.name_th || ""} ${row.name || ""} ${row.real_id || ""} ${row.name_id || ""} ${row.code || ""}`.toLowerCase();
+  return `${row.name_th || ""} ${row.name || ""} ${row.real_id || ""} ${row.name_id || ""} ${row.code || ""} ${(row.monsters || []).join(" ")} ${(row.bosses || []).join(" ")}`.toLowerCase();
 }
 
 function imageUrl(row, type) {
@@ -83,14 +85,14 @@ function imageUrl(row, type) {
 }
 
 function saveKey(row) {
-  return row.code || `${row.name_th}-${row.real_id || row.name_id}`;
+  return row.kind === "map" ? `map:${row.name}` : row.code || `${row.name_th}-${row.real_id || row.name_id}`;
 }
 
 function setActiveView(view) {
   state.view = view;
-  for (const btn of [els.itemTab, els.monsterTab, els.favTab]) btn.classList.remove("active");
-  ({ items: els.itemTab, monsters: els.monsterTab, fav: els.favTab }[view]).classList.add("active");
-  const itemFilters = view !== "monsters";
+  for (const btn of [els.itemTab, els.monsterTab, els.mapTab, els.favTab]) btn.classList.remove("active");
+  ({ items: els.itemTab, monsters: els.monsterTab, maps: els.mapTab, fav: els.favTab }[view]).classList.add("active");
+  const itemFilters = view === "items";
   els.cat.disabled = !itemFilters;
   els.job.disabled = !itemFilters;
   applyFilters();
@@ -114,16 +116,16 @@ function applyFilters() {
   const q = els.search.value.trim().toLowerCase();
   const min = Number(els.min.value || 0);
   const max = Number(els.max.value || 9999);
-  let rows = state.view === "monsters" ? state.monsters : state.items;
+  let rows = state.view === "monsters" ? state.monsters : state.view === "maps" ? state.maps : state.items;
   if (state.view === "fav") {
     const keys = new Set(Object.keys(state.saved));
-    rows = [...state.items, ...state.monsters].filter((row) => keys.has(saveKey(row)));
+    rows = [...state.items, ...state.monsters, ...state.maps].filter((row) => keys.has(saveKey(row)));
   }
   rows = rows.filter((row) => {
     const level = Number(row.level || 0);
     if (q && !textOf(row).includes(q)) return false;
-    if (level < min || level > max) return false;
-    if (state.view !== "monsters" && state.view !== "fav") {
+    if (row.kind !== "map" && (level < min || level > max)) return false;
+    if (state.view === "items") {
       if (els.cat.value && row.cat_key !== els.cat.value) return false;
       if (els.job.value && !(row.job || []).includes(els.job.value)) return false;
     }
@@ -155,16 +157,18 @@ function render() {
 }
 
 function cardHtml(row, index) {
-  const type = state.monsters.includes(row) ? "monster" : "item";
+  const type = typeOf(row);
   const key = saveKey(row);
   const name = row.name_th || row.name || row.code || "-";
-  const sub = type === "monster" ? `Lv.${row.level || "-"} HP ${row.hp || "-"}` : `${row.sub_name || row.cat_name || "-"} #${row.real_id || row.name_id || "-"}`;
-  const pills = type === "monster"
+  const sub = type === "map" ? `${row.monsters.length.toLocaleString()} monster / ${row.bosses.length.toLocaleString()} boss` : type === "monster" ? `Lv.${row.level || "-"} HP ${row.hp || "-"}` : `${row.sub_name || row.cat_name || "-"} #${row.real_id || row.name_id || "-"}`;
+  const pills = type === "map"
+    ? [`รวม ${row.total.toLocaleString()} ตัว`, row.bosses.length ? "มี Boss" : "Monster"]
+    : type === "monster"
     ? [`EXP ${row.exp || "-"}`, `${(row.drops || []).length} drops`]
     : [`Lv.${row.level || "-"}`, `ซื้อ ${Number(row.cost || 0).toLocaleString()}`, `ขาย ${Number(row.sell || 0).toLocaleString()}`];
   return `<article class="card" data-index="${index}">
     <button class="save ${state.saved[key] ? "saved" : ""}" data-save="${index}" type="button" title="บันทึก"><i data-lucide="bookmark"></i></button>
-    <div class="thumb"><img src="${imageUrl(row, type)}" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+    ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb"><img src="${imageUrl(row, type)}" alt="" loading="lazy" onerror="this.style.display='none'"></div>`}
     <div>
       <div class="name">${escapeHtml(name)}</div>
       <div class="meta">${escapeHtml(sub)}</div>
@@ -174,12 +178,12 @@ function cardHtml(row, index) {
 }
 
 function openDetail(row) {
-  const type = state.monsters.includes(row) ? "monster" : "item";
-  const stats = type === "monster" ? monsterStats(row) : itemStats(row);
-  const drops = type === "monster" ? monsterDrops(row) : itemDrops(row);
+  const type = typeOf(row);
+  const stats = type === "map" ? mapStats(row) : type === "monster" ? monsterStats(row) : itemStats(row);
+  const drops = type === "map" ? mapMembers(row) : type === "monster" ? monsterDrops(row) : itemDrops(row);
   els.detail.innerHTML = `<div class="detail">
     <div class="detailHead">
-      <div class="thumb"><img src="${imageUrl(row, type)}" alt="" onerror="this.style.display='none'"></div>
+      ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb"><img src="${imageUrl(row, type)}" alt="" onerror="this.style.display='none'"></div>`}
       <div>
         <h2>${escapeHtml(row.name_th || row.name || row.code || "-")}</h2>
         <div class="meta">${escapeHtml(row.code || "")}</div>
@@ -187,16 +191,23 @@ function openDetail(row) {
       </div>
     </div>
     <div class="statgrid">${stats || `<div class="stat"><span>ไม่มีค่าสเตตัสใน cache</span></div>`}</div>
-    ${drops ? `<h2 class="mt-5 text-lg">ดรอป / หาได้จาก</h2><div class="dropList">${drops}</div>` : ""}
+    ${drops ? `<h2 class="mt-5 text-lg">${type === "map" ? "รายชื่อในแผนที่" : "ดรอป / หาได้จาก"}</h2><div class="dropList">${drops}</div>` : ""}
   </div>`;
   els.dialog.showModal();
   lucide.createIcons();
 }
 
 function headerPills(row, type) {
-  return type === "monster"
+  return type === "map"
+    ? [`Monster ${row.monsters.length.toLocaleString()}`, `Boss ${row.bosses.length.toLocaleString()}`]
+    : type === "monster"
     ? [`Lv.${row.level || "-"}`, `HP ${row.hp || "-"}`, `DEF ${row.defense || "-"}`]
     : [`#${row.real_id || row.name_id || "-"}`, row.cat_name || "-", row.sub_name || "-"];
+}
+
+function typeOf(row) {
+  if (row.kind === "map") return "map";
+  return state.monsters.includes(row) ? "monster" : "item";
 }
 
 function itemStats(row) {
@@ -224,6 +235,20 @@ function monsterDrops(row) {
   </div>`).join("");
 }
 
+function mapStats(row) {
+  return [
+    ["Monster", row.monsters.length.toLocaleString()],
+    ["Boss", row.bosses.length.toLocaleString()],
+    ["รวม", row.total.toLocaleString()],
+  ].map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join("");
+}
+
+function mapMembers(row) {
+  const monsterRows = row.monsters.map((name) => `<div class="stat"><span>${escapeHtml(name)}</span><b>Monster</b></div>`);
+  const bossRows = row.bosses.map((name) => `<div class="stat"><span>${escapeHtml(name)}</span><b class="accent">Boss</b></div>`);
+  return [...bossRows, ...monsterRows].slice(0, 160).join("");
+}
+
 function itemDrops(row) {
   const code = row.code;
   const real = String(row.real_id || row.name_id || "");
@@ -244,16 +269,42 @@ function escapeHtml(value) {
 }
 
 async function loadData() {
-  const [items, monsters] = await Promise.all([
+  const [items, monsters, maps] = await Promise.all([
     fetch("data/items.json").then((r) => r.json()),
     fetch("data/monsters.json").then((r) => r.json()),
+    fetch("data/maps.json").then((r) => r.json()),
   ]);
   state.items = fixMojibake(items);
   state.monsters = fixMojibake(monsters);
-  els.status.textContent = `โหลดแล้ว: Item ${state.items.length.toLocaleString()} / Monster ${state.monsters.length.toLocaleString()}`;
+  state.maps = buildMapRows(fixMojibake(maps));
+  els.status.textContent = `โหลดแล้ว: Item ${state.items.length.toLocaleString()} / Monster ${state.monsters.length.toLocaleString()} / Map ${state.maps.length.toLocaleString()}`;
   populateFilters();
   setMode(state.mode);
   applyFilters();
+}
+
+function buildMapRows(data) {
+  const byMap = new Map();
+  const add = (mapName, monsterName, group) => {
+    const name = String(mapName || "").trim();
+    const monster = String(monsterName || "").trim();
+    if (!name || !monster) return;
+    if (!byMap.has(name)) byMap.set(name, { kind: "map", name, monsters: [], bosses: [], total: 0 });
+    const row = byMap.get(name);
+    const list = group === "bosses" ? row.bosses : row.monsters;
+    if (!list.includes(monster)) list.push(monster);
+  };
+  for (const group of ["monsters", "bosses"]) {
+    for (const [monsterName, maps] of Object.entries(data[group] || {})) {
+      for (const entry of maps || []) add(typeof entry === "string" ? entry : entry.map, monsterName, group);
+    }
+  }
+  return [...byMap.values()].map((row) => {
+    row.monsters.sort((a, b) => a.localeCompare(b, "th"));
+    row.bosses.sort((a, b) => a.localeCompare(b, "th"));
+    row.total = row.monsters.length + row.bosses.length;
+    return row;
+  }).sort((a, b) => a.name.localeCompare(b.name, "th"));
 }
 
 els.results.addEventListener("click", (event) => {
@@ -276,6 +327,7 @@ els.results.addEventListener("click", (event) => {
 [els.search, els.cat, els.job, els.sort, els.min, els.max].forEach((el) => el.addEventListener("input", applyFilters));
 els.itemTab.addEventListener("click", () => setActiveView("items"));
 els.monsterTab.addEventListener("click", () => setActiveView("monsters"));
+els.mapTab.addEventListener("click", () => setActiveView("maps"));
 els.favTab.addEventListener("click", () => setActiveView("fav"));
 els.grid.addEventListener("click", () => setMode("grid"));
 els.list.addEventListener("click", () => setMode("list"));
