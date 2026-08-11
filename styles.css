@@ -14,31 +14,38 @@
 * { box-sizing: border-box; }
 body {
   margin: 0;
+  padding: 16px;
   font-family: "Sarabun", system-ui, sans-serif;
-  background:
-    radial-gradient(900px 420px at 10% 0%, rgba(245, 158, 11, .12), transparent 58%),
-    radial-gradient(780px 360px at 100% 10%, rgba(34, 211, 238, .08), transparent 56%),
-    linear-gradient(180deg, #090a0d, #0d1016 55%, #090a0d);
+  background: #0b0e14;
   color: var(--text);
   min-height: 100vh;
 }
 
 .topbar {
   position: sticky;
-  top: 0;
-  z-index: 10;
+  top: 16px;
+  z-index: 50;
   display: flex;
   gap: 16px;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 16px clamp(14px, 3vw, 32px);
-  background: rgba(13, 14, 18, .9);
-  border-bottom: 1px solid var(--line);
-  backdrop-filter: blur(14px);
+  width: min(1280px, 100%);
+  margin: 0 auto 24px;
+  padding: 16px;
+  background: #141018;
+  border: 1px solid #2a1b2d;
+  border-bottom-color: #2a1b2d;
+  border-radius: 12px;
+  box-shadow: 0 18px 35px rgba(0, 0, 0, .22);
+  backdrop-filter: blur(12px);
+  flex-wrap: wrap;
 }
-h1 { margin: 0; font-size: clamp(22px, 3vw, 34px); font-weight: 800; }
-p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-main { width: min(1480px, 100%); margin: 0 auto; padding: 16px clamp(12px, 3vw, 28px) 48px; }
+.topbar > div:first-child {
+  margin-right: auto;
+}
+h1 { margin: 0; font-size: 18px; font-weight: 800; color: #f8fafc; }
+p { margin: 4px 0 0; color: #71717a; font-size: 12px; }
+main { width: min(1280px, 100%); margin: 0 auto; padding: 0 0 48px; }
 
 button, input, select {
   font: inherit;
@@ -61,17 +68,19 @@ button { cursor: pointer; }
 }
 .tabs svg, .toolbar svg { width: 17px; height: 17px; }
 .tabs .active, .viewBtns .active {
-  background: var(--amber);
+  background: linear-gradient(90deg, #f59e0b, #f97316, #dc2626);
   color: #111827;
   border-color: #fbbf24;
-  font-weight: 700;
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(245, 158, 11, .18);
 }
 
 .toolbar {
   padding: 14px;
-  background: rgba(21, 18, 22, .86);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  background: #151921;
+  border: 1px solid rgba(120, 53, 15, .32);
+  border-radius: 12px;
+  margin-bottom: 12px;
 }
 .searchbox {
   position: relative;
@@ -101,6 +110,10 @@ select { max-width: 180px; }
   grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
   gap: 12px;
 }
+.results.gridView.monsterResults {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
 .results.listView { display: grid; gap: 8px; }
 .card {
   position: relative;
@@ -115,11 +128,13 @@ select { max-width: 180px; }
 .gridView .card { min-height: 184px; text-align: center; }
 .listView .card { display: grid; grid-template-columns: 54px 1fr auto; align-items: center; gap: 12px; }
 .gridView .monsterCard {
-  min-height: 260px;
-  padding: 12px 16px 14px;
-  background: #151019;
-  border-color: #3a2632;
+  min-height: 238px;
+  padding: 16px;
+  background: #151921;
+  border-color: rgba(120, 53, 15, .34);
+  border-radius: 12px;
 }
+.gridView .monsterCard:hover { border-color: rgba(249, 115, 22, .55); }
 .listView .monsterCard {
   grid-template-columns: 62px 1fr auto;
   min-height: 92px;
@@ -154,11 +169,13 @@ select { max-width: 180px; }
   image-rendering: auto;
 }
 .gridView .monsterThumb {
-  width: 82px;
-  height: 82px;
-  min-width: 82px;
-  max-width: 82px;
-  margin-top: 10px;
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+  border-color: #374151;
 }
 .listView .monsterThumb {
   width: 62px;
@@ -200,30 +217,32 @@ select { max-width: 180px; }
   border-radius: 8px;
 }
 .monsterCard .save {
-  top: 12px;
-  left: 12px;
-  width: 24px;
-  height: 24px;
+  top: 8px;
+  left: auto;
+  right: 8px;
+  width: 28px;
+  height: 28px;
   border: 0;
   background: transparent;
-  color: #f4f4f5;
+  color: #6b7280;
   padding: 0;
 }
 .monsterCard .save svg {
-  width: 22px;
-  height: 22px;
+  width: 19px;
+  height: 19px;
 }
 .saved { color: var(--amber); }
 .monsterName {
   font-weight: 800;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.25;
   margin-top: 4px;
   color: #f4f4f5;
   overflow-wrap: anywhere;
 }
 .monsterMeta {
-  margin-top: 5px;
+  margin-top: 4px;
+  margin-bottom: 10px;
   font-size: 11px;
   color: #d4d4d8;
 }
@@ -231,17 +250,18 @@ select { max-width: 180px; }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
-  margin-top: 12px;
+  margin-top: 0;
+  margin-bottom: 8px;
 }
 .monsterStats div {
-  min-height: 38px;
+  min-height: 36px;
   display: grid;
   place-items: center;
   gap: 1px;
   padding: 5px 4px;
-  border: 1px solid #332438;
-  border-radius: 5px;
-  background: #1c1821;
+  border: 1px solid rgba(120, 53, 15, .22);
+  border-radius: 4px;
+  background: rgba(31, 41, 55, .5);
 }
 .monsterStats span {
   font-size: 9px;
@@ -258,10 +278,10 @@ select { max-width: 180px; }
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: 14px;
-  padding-top: 11px;
-  border-top: 1px solid #2a202b;
-  color: #71717a;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(120, 53, 15, .18);
+  color: #6b7280;
   font-size: 11px;
 }
 .monsterFoot svg {

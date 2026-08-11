@@ -149,6 +149,7 @@ function sorter(type) {
 function render() {
   els.count.textContent = `${state.filtered.length.toLocaleString()} รายการ`;
   const rows = state.filtered.slice(0, PAGE_SIZE);
+  els.results.classList.toggle("monsterResults", state.view === "monsters");
   els.results.innerHTML = rows.map(cardHtml).join("") || `<div class="card">ไม่พบข้อมูล</div>`;
   if (state.filtered.length > PAGE_SIZE) {
     els.results.insertAdjacentHTML("beforeend", `<div class="card"><div class="name">แสดง ${PAGE_SIZE.toLocaleString()} รายการแรก</div><div class="meta">พิมพ์คำค้นหรือกรองข้อมูลเพิ่มเพื่อเจาะจงรายการ</div></div>`);
