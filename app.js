@@ -168,7 +168,7 @@ function cardHtml(row, index) {
     : [`Lv.${row.level || "-"}`, `ซื้อ ${Number(row.cost || 0).toLocaleString()}`, `ขาย ${Number(row.sell || 0).toLocaleString()}`];
   return `<article class="card" data-index="${index}">
     <button class="save ${state.saved[key] ? "saved" : ""}" data-save="${index}" type="button" title="บันทึก"><i data-lucide="bookmark"></i></button>
-    ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb"><img src="${imageUrl(row, type)}" alt="" loading="lazy" onerror="this.style.display='none'"></div>`}
+    ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" loading="lazy" onerror="this.style.display='none'"></div>`}
     <div>
       <div class="name">${escapeHtml(name)}</div>
       <div class="meta">${escapeHtml(sub)}</div>
@@ -183,7 +183,7 @@ function openDetail(row) {
   const drops = type === "map" ? mapMembers(row) : type === "monster" ? monsterDrops(row) : itemDrops(row);
   els.detail.innerHTML = `<div class="detail">
     <div class="detailHead">
-      ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb"><img src="${imageUrl(row, type)}" alt="" onerror="this.style.display='none'"></div>`}
+      ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" onerror="this.style.display='none'"></div>`}
       <div>
         <h2>${escapeHtml(row.name_th || row.name || row.code || "-")}</h2>
         <div class="meta">${escapeHtml(row.code || "")}</div>
