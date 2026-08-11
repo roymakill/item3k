@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3K Data DB</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>3K Data DB</h1>
+      <p id="statusText">กำลังโหลดข้อมูล...</p>
+    </div>
+    <nav class="tabs" aria-label="Views">
+      <button id="itemTab" class="active" type="button"><i data-lucide="box"></i> Item</button>
+      <button id="monsterTab" type="button"><i data-lucide="skull"></i> Monster</button>
+      <button id="favTab" type="button"><i data-lucide="bookmark"></i> Saved</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="toolbar">
+      <label class="searchbox">
+        <i data-lucide="search"></i>
+        <input id="searchInput" type="search" placeholder="ค้นหาชื่อ / ID / code">
+      </label>
+      <select id="categoryFilter" title="หมวดหมู่"></select>
+      <select id="jobFilter" title="อาชีพ"></select>
+      <select id="sortFilter" title="เรียงข้อมูล">
+        <option value="default">เรียงปกติ</option>
+        <option value="level_desc">Lv. สูง</option>
+        <option value="level_asc">Lv. ต่ำ</option>
+        <option value="price_desc">ราคาแพง</option>
+        <option value="price_asc">ราคาถูก</option>
+      </select>
+      <input id="minLevel" class="level" type="number" min="0" placeholder="Lv-">
+      <input id="maxLevel" class="level" type="number" min="0" placeholder="Lv+">
+      <button id="resetBtn" class="iconbtn" type="button" title="ล้างตัวกรอง"><i data-lucide="rotate-ccw"></i></button>
+      <div class="viewBtns" aria-label="Display mode">
+        <button id="gridBtn" class="active" type="button" title="Grid"><i data-lucide="layout-grid"></i></button>
+        <button id="listBtn" type="button" title="List"><i data-lucide="list"></i></button>
+      </div>
+    </section>
+
+    <section class="summary">
+      <span id="countText">0 รายการ</span>
+      <span>กดการ์ดเพื่อดูรายละเอียด</span>
+    </section>
+
+    <section id="results" class="results gridView" aria-live="polite"></section>
+  </main>
+
+  <dialog id="detailDialog">
+    <button id="closeDialog" class="close" type="button" title="ปิด"><i data-lucide="x"></i></button>
+    <div id="detailContent"></div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
