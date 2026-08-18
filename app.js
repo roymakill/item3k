@@ -57,16 +57,16 @@ const jobMap = {
   jobENGINEER: "จักรกล",
 };
 const elemMap = {
-  skillAttr_SLASH: { name: "ฟัน", icon: "swords", cls: "elem-slate" },
-  skillAttr_STING: { name: "แทง", icon: "crosshair", cls: "elem-rose" },
-  skillAttr_BREAK: { name: "ทุบ", icon: "hammer", cls: "elem-orange" },
-  skillAttr_ARROW: { name: "ธนู", icon: "bow-arrow", cls: "elem-lime" },
-  skillAttr_FIRE: { name: "ไฟ", icon: "flame", cls: "elem-red" },
-  skillAttr_WATER: { name: "น้ำ", icon: "droplets", cls: "elem-cyan" },
-  skillAttr_GOD: { name: "เซียน", icon: "sun", cls: "elem-amber" },
-  skillAttr_EVIL: { name: "มาร", icon: "moon", cls: "elem-violet" },
-  skillAttr_NORMAL: { name: "ปกติ", icon: "circle-dot", cls: "elem-gray" },
-  skillAttr_NONE: { name: "ไร้ธาตุ", icon: "circle", cls: "elem-gray" },
+  skillAttr_FIRE: { name: "ไฟ", icon: "flame", cls: "text-red-400" },
+  skillAttr_WATER: { name: "น้ำ", icon: "droplet", cls: "text-sky-400" },
+  skillAttr_SLASH: { name: "สะบั้น", icon: "sword", cls: "text-emerald-300" },
+  skillAttr_STING: { name: "แทง", icon: "navigation", cls: "text-amber-200" },
+  skillAttr_BREAK: { name: "สับ", icon: "axe", cls: "text-orange-300" },
+  skillAttr_ARROW: { name: "ยิง", icon: "crosshair", cls: "text-teal-300" },
+  skillAttr_GOD: { name: "เซียน", icon: "sun", cls: "text-yellow-300" },
+  skillAttr_EVIL: { name: "มาร", icon: "moon", cls: "text-fuchsia-300" },
+  skillAttr_NONE: { name: "ไร้ธาตุ", icon: "circle", cls: "text-gray-400" },
+  skillAttr_NORMAL: { name: "ปกติ", icon: "circle-dot", cls: "text-gray-300" },
 };
 
 function pad(id) {
@@ -229,7 +229,7 @@ function openDetail(row) {
       </div>
     </div>
     <div class="statgrid">${stats || `<div class="stat"><span>ไม่มีค่าสเตตัสใน cache</span></div>`}</div>
-    ${elements ? `<h2 class="mt-5 text-lg">Element Info</h2><div class="elementInfo">${elements}</div>` : ""}
+    ${elements}
     ${locations ? `<h2 class="mt-5 text-lg">สถานที่เกิด</h2><div class="locationList">${locations}</div>` : ""}
     ${drops ? `<h2 class="mt-5 text-lg">${type === "map" ? "รายชื่อในแผนที่" : "ดรอป / หาได้จาก"}</h2><div class="dropList">${drops}</div>` : ""}
   </div>`;
@@ -270,10 +270,14 @@ function monsterStats(row) {
 
 function elementInfo(row, type) {
   const groups = normalizeElements(row, type);
-  const sections = [];
-  if (groups.atk.length) sections.push(elementSection("ธาตุโจมตี", "sword", groups.atk));
-  if (groups.def.length) sections.push(elementSection("ธาตุป้องกัน", "shield", groups.def));
-  return sections.join("");
+  if (!groups.atk.length && !groups.def.length) return "";
+  const atkTitle = type === "monster" ? "โจมตีธาตุ" : "ธาตุโจมตี";
+  const defTitle = type === "monster" ? "ป้องกันธาตุ" : "ธาตุป้องกัน";
+  return `<div class="origElementBlock">
+    ${type === "monster" ? `<h4 class="origElementHeading">Elements Info</h4>` : ""}
+    ${renderOrigElems(groups.atk, atkTitle, false)}
+    ${renderOrigElems(groups.def, defTitle, true)}
+  </div>`;
 }
 
 function normalizeElements(row, type) {
@@ -291,21 +295,20 @@ function normalizeElements(row, type) {
   return groups;
 }
 
-function elementSection(title, icon, elems) {
-  return `<section class="elementSection">
-    <div class="elementTitle"><i data-lucide="${icon}"></i>${escapeHtml(title)}</div>
-    <div class="elementGrid">${elems.map(elementChip).join("")}</div>
-  </section>`;
+function renderOrigElems(elems, title, shieldIcon) {
+  if (!elems.length) return "";
+  return `<div class="origElemGroup">
+    <div class="origElemTitle">${escapeHtml(title)}</div>
+    <div class="origElemGrid">${elems.map((elem) => origElemCell(elem, title, shieldIcon)).join("")}</div>
+  </div>`;
 }
 
-function elementChip(elem) {
-  const meta = elemMap[elem.code] || { name: elem.code || "-", icon: "circle-help", cls: "elem-gray" };
+function origElemCell(elem, title, shieldIcon) {
+  const meta = elemMap[elem.code] || { name: elem.code || "-", icon: "circle", cls: "text-gray-200" };
   const raw = String(elem.value ?? "");
   const value = raw && raw !== "0" ? `${raw}%` : raw || "-";
-  return `<div class="elementChip ${meta.cls}">
-    <i data-lucide="${meta.icon}"></i>
-    <span>${escapeHtml(meta.name)}</span>
-    <b>${escapeHtml(value)}</b>
+  return `<div class="origElemCell" title="${escapeHtml(title)} ${escapeHtml(meta.name)}">
+    <i data-lucide="${shieldIcon ? "shield" : meta.icon}" class="w-3 h-3 ${meta.cls} mr-1"></i>${escapeHtml(value)}
   </div>`;
 }
 
