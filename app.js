@@ -417,7 +417,7 @@ function monsterDrops(row) {
           <div class="origDropId">ID: ${escapeHtml(realId || item.item_id || "-")}</div>
         </div>
         <div class="origDropRate">
-          <div class="${percentClass(item.percent)}">${escapeHtml(item.percent || String(item.rate || ""))}</div>
+          <div class="${percentClass(item.percent)}">${escapeHtml(cleanPercent(item.percent) || String(item.rate || ""))}</div>
           <div class="origDropOne">${escapeHtml(oneIn)}</div>
         </div>
       </div>
@@ -498,7 +498,7 @@ function itemDrops(row) {
           <div class="origDropId">Lv.${escapeHtml(String(mob.level || "-"))}</div>
         </div>
         <div class="origDropRate">
-          <div class="${percentClass(drop.percent)}">Rate: ${escapeHtml(drop.percent || String(drop.rate || ""))}</div>
+          <div class="${percentClass(drop.percent)}">Rate: ${escapeHtml(cleanPercent(drop.percent) || String(drop.rate || ""))}</div>
         </div>
       </div>
     </div>`;
@@ -515,6 +515,10 @@ function percentClass(percent) {
   if (pct < 1) return "origRateRare";
   if (pct < 5) return "origRateUncommon";
   return "origRateCommon";
+}
+
+function cleanPercent(percent) {
+  return String(percent || "").replace(/\s*\(Aggregated\)/gi, "");
 }
 
 function escapeHtml(value) {
