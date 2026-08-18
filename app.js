@@ -68,6 +68,13 @@ const elemMap = {
   skillAttr_NONE: { name: "ไร้ธาตุ", icon: "circle", cls: "text-gray-400" },
   skillAttr_NORMAL: { name: "ปกติ", icon: "circle-dot", cls: "text-gray-300" },
 };
+const elemMainMap = {
+  0: { name: "ไร้ธาตุ", icon: "circle", cls: "text-slate-300", weak: "-" },
+  1: { name: "ดิน", icon: "mountain", cls: "text-amber-300", weak: "ลม (Wind)" },
+  2: { name: "น้ำ", icon: "droplet", cls: "text-sky-300", weak: "ดิน (Earth)" },
+  3: { name: "ไฟ", icon: "flame", cls: "text-red-400", weak: "น้ำ (Water)" },
+  4: { name: "ลม", icon: "wind", cls: "text-emerald-300", weak: "ไฟ (Fire)" },
+};
 
 function pad(id) {
   const raw = String(id ?? "").trim();
@@ -215,6 +222,12 @@ function monsterCardHtml(row, index) {
 
 function openDetail(row) {
   const type = typeOf(row);
+  if (type === "monster") {
+    els.detail.innerHTML = monsterDetail(row);
+    els.dialog.showModal();
+    lucide.createIcons();
+    return;
+  }
   const stats = type === "map" ? mapStats(row) : type === "monster" ? monsterStats(row) : itemStats(row);
   const elements = type === "map" ? "" : elementInfo(row, type);
   const locations = type === "monster" ? monsterLocations(row) : "";
@@ -235,6 +248,55 @@ function openDetail(row) {
   </div>`;
   els.dialog.showModal();
   lucide.createIcons();
+}
+
+function monsterDetail(row) {
+  const locations = monsterLocations(row);
+  const elements = elementInfo(row, "monster");
+  const skills = monsterSkills(row);
+  return `<div class="detail monsterDetail">
+    <div class="monsterDetailHead">
+      <div class="monsterPortrait"><img src="${imageUrl(row, "monster")}" alt="" onerror="this.style.display='none'"></div>
+      <div class="monsterTitleBlock">
+        <div class="monsterModalTop">
+          <h2>${escapeHtml(row.name_th || row.name || row.code || "-")}</h2>
+          ${row.is_boss ? `<span class="bossBadge"><i data-lucide="crown"></i> Boss</span>` : ""}
+        </div>
+        <div class="meta">${escapeHtml(row.code || "")}</div>
+        <div class="pillrow">${headerPills(row, "monster").map((p) => `<span class="pill">${escapeHtml(p)}</span>`).join("")}</div>
+        ${monsterElementSummary(row)}
+      </div>
+    </div>
+    <div class="monsterDetailGrid">
+      <section class="detailPanel">
+        <h3>Basic Info</h3>
+        <div class="statgrid compactStats">${monsterStats(row) || `<div class="stat"><span>ไม่มีค่าสเตตัสใน cache</span></div>`}</div>
+      </section>
+      <section class="detailPanel">
+        <h3>สถานที่เกิด</h3>
+        <div class="locationList">${locations || `<div class="origDropEmpty">ไม่พบข้อมูลจุดเกิด</div>`}</div>
+      </section>
+      <section class="detailPanel">
+        ${elements || `<h3>Elements Info</h3><div class="origDropEmpty">ไม่พบข้อมูลธาตุ</div>`}
+      </section>
+      <section class="detailPanel">
+        <h3>Skills (Special Attack)</h3>
+        <div class="skillList">${skills || `<div class="origDropEmpty">ไม่มีสกิลพิเศษ</div>`}</div>
+      </section>
+      <section class="detailPanel widePanel">
+        <h3>Drop List</h3>
+        <div class="dropList">${monsterDrops(row)}</div>
+      </section>
+    </div>
+  </div>`;
+}
+
+function monsterElementSummary(row) {
+  const meta = elemMainMap[Number(row.element || 0)] || elemMainMap[0];
+  return `<div class="monsterElementSummary">
+    <div class="mainElement ${meta.cls}"><i data-lucide="${meta.icon}"></i><span>${escapeHtml(meta.name)}</span></div>
+    <div class="weakElement"><span>แพ้ธาตุ</span><b>${escapeHtml(meta.weak)}</b></div>
+  </div>`;
 }
 
 function dropHeading(type) {
@@ -345,11 +407,42 @@ function monsterDrops(row) {
 function monsterLocations(row) {
   const locations = row.locations || [];
   if (!locations.length) return "";
-  return locations.slice(0, 120).map((loc) => `<div class="locationChip">
+  return locations.slice(0, 120).map((loc) => `<div class="locationChip ${loc.type === "boss" ? "bossLoc" : "mobLoc"}">
     <i data-lucide="${loc.type === "boss" ? "crown" : "map-pin"}"></i>
     <span>${escapeHtml(loc.map)}</span>
     <b>${loc.type === "boss" ? "Boss" : "Mob"}</b>
+    ${loc.amount ? `<em>x${escapeHtml(String(loc.amount))}</em>` : ""}
+    ${loc.reborn ? `<em><i data-lucide="clock"></i>${escapeHtml(String(loc.reborn))}</em>` : ""}
   </div>`).join("");
+}
+
+function monsterSkills(row) {
+  const skills = row.skills || [];
+  if (!skills.length) return "";
+  return skills.slice(0, 40).map((skill) => {
+    const data = skill.data || {};
+    const details = skillDetails(data);
+    return `<div class="skillCard">
+      <div class="skillIcon"><i data-lucide="sparkles"></i></div>
+      <div class="skillBody">
+        <div class="skillName">${escapeHtml(data.name_th || skill.code || "-")}</div>
+        <div class="skillCode">${escapeHtml(skill.code || data.name_id || "")}</div>
+        ${details ? `<div class="skillDetails">${details}</div>` : ""}
+      </div>
+      <div class="skillRate">ระดับดี ${escapeHtml(skill.rate || "-")}</div>
+    </div>`;
+  }).join("");
+}
+
+function skillDetails(data) {
+  const parts = [];
+  if (data.damage_level_add) parts.push(`<span>Damage +${escapeHtml(String(data.damage_level_add))}</span>`);
+  if (data.power_up) parts.push(`<span>Power +${escapeHtml(String(data.power_up))}</span>`);
+  for (const fn of data.funcs || []) {
+    const meta = elemMap[fn.type] || { name: fn.type || "-", icon: "circle", cls: "text-gray-300" };
+    parts.push(`<span><i data-lucide="${meta.icon}" class="${meta.cls}"></i>${escapeHtml(meta.name)} ${escapeHtml(String(fn.val ?? ""))}%</span>`);
+  }
+  return parts.join("");
 }
 
 function mapStats(row) {
@@ -432,7 +525,12 @@ function hydrateMonsterLocations(monsters, data) {
     const mapName = String(typeof entry === "string" ? entry : entry?.map || "").trim();
     if (!rawKey || !mapName) return;
     for (const part of rawKey.split(",").map((value) => value.trim()).filter(Boolean)) {
-      const loc = { map: mapName, type: group === "bosses" ? "boss" : "mob" };
+      const loc = {
+        map: mapName,
+        type: group === "bosses" ? "boss" : "mob",
+        amount: typeof entry === "object" ? entry.amount : undefined,
+        reborn: typeof entry === "object" ? entry.reborn : undefined,
+      };
       if (part.startsWith("role_")) {
         if (!byCode.has(part)) byCode.set(part, []);
         byCode.get(part).push(loc);

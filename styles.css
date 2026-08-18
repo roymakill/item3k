@@ -319,6 +319,9 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
 .detail {
   padding: 24px;
 }
+.monsterDetail {
+  padding: 18px;
+}
 .detailHead {
   display: grid;
   grid-template-columns: 96px 1fr;
@@ -341,6 +344,119 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
   max-width: 120px;
 }
 .detail h2 { margin: 0 0 6px; font-size: 24px; }
+.monsterDetailHead {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(120, 53, 15, .28);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, .72);
+}
+.monsterPortrait {
+  width: 120px;
+  height: 120px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(75, 85, 99, .9);
+  border-radius: 6px;
+  background: #020617;
+}
+.monsterPortrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
+}
+.monsterTitleBlock {
+  min-width: 0;
+}
+.monsterModalTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.monsterModalTop h2 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 24px;
+}
+.bossBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid rgba(248, 113, 113, .35);
+  border-radius: 999px;
+  background: rgba(127, 29, 29, .34);
+  color: #fca5a5;
+  font-size: 11px;
+  font-weight: 800;
+}
+.bossBadge svg {
+  width: 12px;
+  height: 12px;
+}
+.monsterElementSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.mainElement,
+.weakElement {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid rgba(120, 53, 15, .25);
+  border-radius: 4px;
+  background: rgba(2, 6, 23, .65);
+  font-size: 12px;
+}
+.mainElement svg,
+.weakElement svg {
+  width: 14px;
+  height: 14px;
+}
+.weakElement span {
+  color: #9ca3af;
+}
+.weakElement b {
+  color: #fde68a;
+}
+.monsterDetailGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+.detailPanel {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(120, 53, 15, .24);
+  border-radius: 6px;
+  background: rgba(17, 24, 39, .58);
+}
+.detailPanel h3 {
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(120, 53, 15, .25);
+  color: rgba(253, 230, 138, .72);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.widePanel {
+  grid-column: 1 / -1;
+}
+.compactStats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0;
+}
 .statgrid { display: grid; gap: 8px; margin-top: 16px; }
 .dropList {
   display: grid;
@@ -368,6 +484,13 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
   color: #e5e7eb;
   font-size: 12px;
 }
+.bossLoc {
+  border-color: rgba(248, 113, 113, .28);
+  background: rgba(127, 29, 29, .16);
+}
+.mobLoc {
+  background: rgba(15, 23, 42, .8);
+}
 .locationChip svg {
   width: 13px;
   height: 13px;
@@ -378,8 +501,21 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
   font-size: 10px;
   font-weight: 700;
 }
+.locationChip em {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #9ca3af;
+  font-style: normal;
+  font-size: 10px;
+}
+.locationChip em svg {
+  width: 10px;
+  height: 10px;
+  color: #9ca3af;
+}
 .origElementBlock {
-  margin-top: 14px;
+  margin-top: 0;
 }
 .origElementHeading {
   color: rgba(253, 230, 138, .7);
@@ -521,6 +657,83 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
   color: #6b7280;
   font-size: 14px;
 }
+.skillList {
+  display: grid;
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.skillCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid rgba(120, 53, 15, .2);
+  border-radius: 4px;
+  background: #0f172a;
+}
+.skillIcon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(75, 85, 99, .85);
+  border-radius: 4px;
+  background: #020617;
+  color: #fcd34d;
+}
+.skillIcon svg {
+  width: 16px;
+  height: 16px;
+}
+.skillBody {
+  min-width: 0;
+  flex: 1;
+}
+.skillName {
+  overflow: hidden;
+  color: #e5e7eb;
+  font-size: 13px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.skillCode {
+  color: #6b7280;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 10px;
+}
+.skillDetails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.skillDetails span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 5px;
+  border: 1px solid rgba(120, 53, 15, .18);
+  border-radius: 4px;
+  background: rgba(2, 6, 23, .58);
+  color: #cbd5e1;
+  font-size: 10px;
+}
+.skillDetails svg {
+  width: 11px;
+  height: 11px;
+}
+.skillRate {
+  flex: 0 0 auto;
+  padding-top: 1px;
+  color: #fbbf24;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  white-space: nowrap;
+}
 @keyframes pulseRate {
   0%, 100% { opacity: 1; }
   50% { opacity: .55; }
@@ -536,4 +749,14 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
   .level { flex-basis: calc(50% - 4px); }
   .summary { flex-direction: column; }
   .detailHead { grid-template-columns: 1fr; }
+  .monsterDetailHead,
+  .monsterDetailGrid {
+    grid-template-columns: 1fr;
+  }
+  .compactStats {
+    grid-template-columns: 1fr;
+  }
+  .skillCard {
+    flex-wrap: wrap;
+  }
 }
