@@ -140,6 +140,7 @@ select { max-width: 180px; }
   min-height: 92px;
 }
 .thumb {
+  position: relative;
   width: 68px;
   height: 68px;
   min-width: 68px;
@@ -161,6 +162,8 @@ select { max-width: 180px; }
 }
 .thumb img {
   display: block;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   max-width: 100%;
@@ -189,7 +192,7 @@ select { max-width: 180px; }
   max-width: none;
   max-height: none;
   object-fit: contain;
-  object-position: center bottom;
+  object-position: center center;
 }
 .mapThumb {
   color: var(--cyan);
@@ -368,7 +371,7 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
   width: 100%;
   height: 100%;
   object-fit: contain;
-  object-position: center bottom;
+  object-position: center center;
 }
 .monsterTitleBlock {
   min-width: 0;
