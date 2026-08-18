@@ -370,6 +370,65 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
   font-size: 10px;
   font-weight: 700;
 }
+.elementInfo {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+.elementSection {
+  border: 1px solid rgba(120, 53, 15, .28);
+  border-radius: 8px;
+  background: rgba(31, 41, 55, .26);
+  padding: 10px;
+}
+.elementTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #d4d4d8;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.elementTitle svg {
+  width: 14px;
+  height: 14px;
+  color: #f59e0b;
+}
+.elementGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(94px, 1fr));
+  gap: 7px;
+}
+.elementChip {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, .2);
+  font-size: 11px;
+}
+.elementChip svg {
+  width: 14px;
+  height: 14px;
+}
+.elementChip b {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+}
+.elem-slate { color: #cbd5e1; }
+.elem-rose { color: #fb7185; }
+.elem-orange { color: #fb923c; }
+.elem-lime { color: #a3e635; }
+.elem-red { color: #f87171; }
+.elem-cyan { color: #22d3ee; }
+.elem-amber { color: #fbbf24; }
+.elem-violet { color: #c084fc; }
+.elem-gray { color: #9ca3af; }
 .stat {
   display: flex;
   justify-content: space-between;

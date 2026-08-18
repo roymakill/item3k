@@ -56,6 +56,18 @@ const jobMap = {
   jobASSASSIN: "องครักษ์",
   jobENGINEER: "จักรกล",
 };
+const elemMap = {
+  skillAttr_SLASH: { name: "ฟัน", icon: "swords", cls: "elem-slate" },
+  skillAttr_STING: { name: "แทง", icon: "crosshair", cls: "elem-rose" },
+  skillAttr_BREAK: { name: "ทุบ", icon: "hammer", cls: "elem-orange" },
+  skillAttr_ARROW: { name: "ธนู", icon: "bow-arrow", cls: "elem-lime" },
+  skillAttr_FIRE: { name: "ไฟ", icon: "flame", cls: "elem-red" },
+  skillAttr_WATER: { name: "น้ำ", icon: "droplets", cls: "elem-cyan" },
+  skillAttr_GOD: { name: "เซียน", icon: "sun", cls: "elem-amber" },
+  skillAttr_EVIL: { name: "มาร", icon: "moon", cls: "elem-violet" },
+  skillAttr_NORMAL: { name: "ปกติ", icon: "circle-dot", cls: "elem-gray" },
+  skillAttr_NONE: { name: "ไร้ธาตุ", icon: "circle", cls: "elem-gray" },
+};
 
 function pad(id) {
   const raw = String(id ?? "").trim();
@@ -204,6 +216,7 @@ function monsterCardHtml(row, index) {
 function openDetail(row) {
   const type = typeOf(row);
   const stats = type === "map" ? mapStats(row) : type === "monster" ? monsterStats(row) : itemStats(row);
+  const elements = type === "map" ? "" : elementInfo(row, type);
   const locations = type === "monster" ? monsterLocations(row) : "";
   const drops = type === "map" ? mapMembers(row) : type === "monster" ? monsterDrops(row) : itemDrops(row);
   els.detail.innerHTML = `<div class="detail">
@@ -216,6 +229,7 @@ function openDetail(row) {
       </div>
     </div>
     <div class="statgrid">${stats || `<div class="stat"><span>ไม่มีค่าสเตตัสใน cache</span></div>`}</div>
+    ${elements ? `<h2 class="mt-5 text-lg">Element Info</h2><div class="elementInfo">${elements}</div>` : ""}
     ${locations ? `<h2 class="mt-5 text-lg">สถานที่เกิด</h2><div class="locationList">${locations}</div>` : ""}
     ${drops ? `<h2 class="mt-5 text-lg">${type === "map" ? "รายชื่อในแผนที่" : "ดรอป / หาได้จาก"}</h2><div class="dropList">${drops}</div>` : ""}
   </div>`;
@@ -252,6 +266,47 @@ function monsterStats(row) {
     ["Defense", row.defense], ["Attack Speed", row.attack_speed], ["EXP", row.exp],
     ["STR", row.stats?.STR], ["INT", row.stats?.INT], ["CON", row.stats?.CON], ["DEX", row.stats?.DEX], ["MIND", row.stats?.MIND],
   ].filter(([, v]) => v !== undefined && v !== "").map(([k, v]) => `<div class="stat"><span>${k}</span><b>${escapeHtml(String(v))}</b></div>`).join("");
+}
+
+function elementInfo(row, type) {
+  const groups = normalizeElements(row, type);
+  const sections = [];
+  if (groups.atk.length) sections.push(elementSection("ธาตุโจมตี", "sword", groups.atk));
+  if (groups.def.length) sections.push(elementSection("ธาตุป้องกัน", "shield", groups.def));
+  return sections.join("");
+}
+
+function normalizeElements(row, type) {
+  if (type === "monster") {
+    return {
+      atk: (row.elems?.atk || []).map((e) => ({ code: e.c, value: e.v })),
+      def: (row.elems?.def || []).map((e) => ({ code: e.c, value: e.v })),
+    };
+  }
+  const groups = { atk: [], def: [] };
+  for (const elem of row.elems || []) {
+    const key = String(elem.t || "").toUpperCase() === "DEF" ? "def" : "atk";
+    groups[key].push({ code: elem.c, value: elem.v });
+  }
+  return groups;
+}
+
+function elementSection(title, icon, elems) {
+  return `<section class="elementSection">
+    <div class="elementTitle"><i data-lucide="${icon}"></i>${escapeHtml(title)}</div>
+    <div class="elementGrid">${elems.map(elementChip).join("")}</div>
+  </section>`;
+}
+
+function elementChip(elem) {
+  const meta = elemMap[elem.code] || { name: elem.code || "-", icon: "circle-help", cls: "elem-gray" };
+  const raw = String(elem.value ?? "");
+  const value = raw && raw !== "0" ? `${raw}%` : raw || "-";
+  return `<div class="elementChip ${meta.cls}">
+    <i data-lucide="${meta.icon}"></i>
+    <span>${escapeHtml(meta.name)}</span>
+    <b>${escapeHtml(value)}</b>
+  </div>`;
 }
 
 function monsterDrops(row) {
