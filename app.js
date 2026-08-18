@@ -75,6 +75,12 @@ const elemMainMap = {
   3: { name: "ไฟ", icon: "flame", cls: "text-red-400", weak: "น้ำ (Water)" },
   4: { name: "ลม", icon: "wind", cls: "text-emerald-300", weak: "ไฟ (Fire)" },
 };
+const manualMonsterLocations = {
+  26309: [{ map: "ถ้ำน้ำแข็ง", type: "boss", amount: 1, reborn: 0 }],
+  26310: [{ map: "ถ้ำน้ำแข็ง", type: "boss", amount: 1, reborn: 0 }],
+  90619: [{ map: "ถ้ำน้ำแข็ง", type: "boss", amount: 1, reborn: 0 }],
+  90620: [{ map: "ถ้ำน้ำแข็ง", type: "boss", amount: 1, reborn: 0 }],
+};
 
 function pad(id) {
   const raw = String(id ?? "").trim();
@@ -546,7 +552,11 @@ function hydrateMonsterLocations(monsters, data) {
     }
   }
   for (const monster of monsters) {
-    const locations = [...(byName.get(monster.name_th) || []), ...(byCode.get(monster.code) || [])];
+    const locations = [
+      ...(byName.get(monster.name_th) || []),
+      ...(byCode.get(monster.code) || []),
+      ...(manualMonsterLocations[monster.name_id] || []),
+    ];
     const seen = new Set();
     monster.locations = locations.filter((loc) => {
       const key = `${loc.type}:${loc.map}`;
@@ -572,6 +582,9 @@ function buildMapRows(data) {
     for (const [monsterName, maps] of Object.entries(data[group] || {})) {
       for (const entry of maps || []) add(typeof entry === "string" ? entry : entry.map, monsterName, group);
     }
+  }
+  for (const monster of state.monsters) {
+    for (const loc of manualMonsterLocations[monster.name_id] || []) add(loc.map, monster.name_th, "bosses");
   }
   return [...byMap.values()].map((row) => {
     row.monsters.sort((a, b) => a.localeCompare(b, "th"));
