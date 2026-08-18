@@ -231,10 +231,16 @@ function openDetail(row) {
     <div class="statgrid">${stats || `<div class="stat"><span>ไม่มีค่าสเตตัสใน cache</span></div>`}</div>
     ${elements}
     ${locations ? `<h2 class="mt-5 text-lg">สถานที่เกิด</h2><div class="locationList">${locations}</div>` : ""}
-    ${drops ? `<h2 class="mt-5 text-lg">${type === "map" ? "รายชื่อในแผนที่" : "ดรอป / หาได้จาก"}</h2><div class="dropList">${drops}</div>` : ""}
+    ${drops ? `<h2 class="mt-5 text-lg">${dropHeading(type)}</h2><div class="dropList">${drops}</div>` : ""}
   </div>`;
   els.dialog.showModal();
   lucide.createIcons();
+}
+
+function dropHeading(type) {
+  if (type === "map") return "รายชื่อในแผนที่";
+  if (type === "monster") return "Drop List";
+  return "แหล่งดรอป (Drops)";
 }
 
 function headerPills(row, type) {
@@ -313,10 +319,27 @@ function origElemCell(elem, title, shieldIcon) {
 }
 
 function monsterDrops(row) {
-  return (row.drops || []).slice(0, 80).map((d) => `<div class="stat">
-    <span>${escapeHtml(d.name || d.item_id || "-")} <small class="meta">#${escapeHtml(String(d.real_id || ""))}</small></span>
-    <b class="accent">${escapeHtml(d.percent || String(d.rate || ""))}</b>
-  </div>`).join("");
+  const drops = [...(row.drops || [])].sort((a, b) => Number(b.rate || 0) - Number(a.rate || 0));
+  if (!drops.length) return `<div class="origDropEmpty">ไม่พบไอเทมดรอป</div>`;
+  return drops.slice(0, 120).map((item) => {
+    const realId = String(item.real_id || "").trim();
+    const iconNum = String(item.icon || realId || "").trim();
+    const jump = realId || item.item_id || item.name || "";
+    const oneIn = item.one_in && item.one_in !== "0" ? `1 ใน ${item.one_in}` : "";
+    return `<div class="origDropRow" data-jump-view="items" data-jump-search="${escapeHtml(jump)}">
+      <div class="origDropMain">
+        <div class="origDropIcon"><img src="${escapeHtml(itemIconUrl(iconNum))}" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="origDropText">
+          <div class="origDropName" title="${escapeHtml(item.name || item.item_id || "-")}">${escapeHtml(item.name || item.item_id || "-")}</div>
+          <div class="origDropId">ID: ${escapeHtml(realId || item.item_id || "-")}</div>
+        </div>
+        <div class="origDropRate">
+          <div class="${percentClass(item.percent)}">${escapeHtml(item.percent || String(item.rate || ""))}</div>
+          <div class="origDropOne">${escapeHtml(oneIn)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
 }
 
 function monsterLocations(row) {
@@ -349,13 +372,35 @@ function itemDrops(row) {
   const matches = state.monsters.filter((mob) => (mob.drops || []).some((drop) =>
     drop.item_id === code || drop.code === code || String(drop.real_id || "") === real || drop.name === row.name_th
   ));
-  return matches.slice(0, 80).map((mob) => {
+  if (!matches.length) return `<div class="origDropEmpty"><i data-lucide="search-x"></i> ไม่พบข้อมูลดรอป</div>`;
+  return matches.slice(0, 120).map((mob) => {
     const drop = (mob.drops || []).find((d) => d.item_id === code || d.code === code || String(d.real_id || "") === real || d.name === row.name_th) || {};
-    return `<div class="stat">
-      <span>${escapeHtml(mob.name_th || mob.name || mob.code)} <small class="meta">Lv.${escapeHtml(String(mob.level || "-"))}</small></span>
-      <b class="cyan">${escapeHtml(drop.percent || String(drop.rate || ""))}</b>
+    const jump = mob.name_th || mob.name || mob.code || "";
+    return `<div class="origDropRow" data-jump-view="monsters" data-jump-search="${escapeHtml(jump)}">
+      <div class="origDropMain">
+        <div class="origDropIcon"><img src="${escapeHtml(imageUrl(mob, "monster"))}" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="origDropText">
+          <div class="origDropName" title="${escapeHtml(jump)}">${escapeHtml(jump)}</div>
+          <div class="origDropId">Lv.${escapeHtml(String(mob.level || "-"))}</div>
+        </div>
+        <div class="origDropRate">
+          <div class="${percentClass(drop.percent)}">Rate: ${escapeHtml(drop.percent || String(drop.rate || ""))}</div>
+        </div>
+      </div>
     </div>`;
   }).join("");
+}
+
+function itemIconUrl(iconNum) {
+  return `${IMG_ITEM}${pad(iconNum)}.png`;
+}
+
+function percentClass(percent) {
+  const pct = parseFloat(String(percent || "0").replace("%", "")) || 0;
+  if (pct < 0.1) return "origRateUltra";
+  if (pct < 1) return "origRateRare";
+  if (pct < 5) return "origRateUncommon";
+  return "origRateCommon";
 }
 
 function escapeHtml(value) {
@@ -453,6 +498,18 @@ els.results.addEventListener("click", (event) => {
     return;
   }
   openDetail(row);
+});
+
+els.detail.addEventListener("click", (event) => {
+  const jump = event.target.closest("[data-jump-view]");
+  if (!jump) return;
+  const view = jump.dataset.jumpView;
+  const search = jump.dataset.jumpSearch || "";
+  els.dialog.close();
+  setActiveView(view);
+  els.search.value = search;
+  applyFilters();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
 [els.search, els.cat, els.job, els.sort, els.min, els.max].forEach((el) => el.addEventListener("input", applyFilters));
