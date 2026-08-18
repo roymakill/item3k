@@ -104,6 +104,26 @@ function imageUrl(row, type) {
   return `${type === "monster" ? IMG_MONSTER : IMG_ITEM}${icon}.png`;
 }
 
+function imageError(row, type) {
+  if (type !== "item") return "this.style.display='none'";
+  const icon = pad(row.icon || row.real_id || row.name_id);
+  return `fallbackItemImage(this,'${escapeHtml(icon)}')`;
+}
+
+function fallbackItemImage(img, icon) {
+  const step = Number(img.dataset.fallbackStep || 0);
+  img.dataset.fallbackStep = String(step + 1);
+  if (step === 0) {
+    img.src = `${IMG_ITEM}${icon}f.png`;
+    return;
+  }
+  if (step === 1) {
+    img.src = `${IMG_ITEM}${icon}m.png`;
+    return;
+  }
+  img.style.display = "none";
+}
+
 function saveKey(row) {
   return row.kind === "map" ? `map:${row.name}` : row.code || `${row.name_th}-${row.real_id || row.name_id}`;
 }
@@ -190,7 +210,7 @@ function cardHtml(row, index) {
     : [`Lv.${row.level || "-"}`, `ซื้อ ${Number(row.cost || 0).toLocaleString()}`, `ขาย ${Number(row.sell || 0).toLocaleString()}`];
   return `<article class="card" data-index="${index}">
     <button class="save ${state.saved[key] ? "saved" : ""}" data-save="${index}" type="button" title="บันทึก"><i data-lucide="bookmark"></i></button>
-    ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" loading="lazy" onerror="this.style.display='none'"></div>`}
+    ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" loading="lazy" onerror="${imageError(row, type)}"></div>`}
     <div>
       <div class="name">${escapeHtml(name)}</div>
       <div class="meta">${escapeHtml(sub)}</div>
@@ -235,7 +255,7 @@ function openDetail(row) {
   const drops = type === "map" ? mapMembers(row) : type === "monster" ? monsterDrops(row) : itemDrops(row);
   els.detail.innerHTML = `<div class="detail">
     <div class="detailHead">
-      ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" onerror="this.style.display='none'"></div>`}
+      ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" onerror="${imageError(row, type)}"></div>`}
       <div>
         <h2>${escapeHtml(row.name_th || row.name || row.code || "-")}</h2>
         <div class="meta">${escapeHtml(row.code || "")}</div>
@@ -391,7 +411,7 @@ function monsterDrops(row) {
     const oneIn = item.one_in && item.one_in !== "0" ? `1 ใน ${item.one_in}` : "";
     return `<div class="origDropRow" data-jump-view="items" data-jump-search="${escapeHtml(jump)}">
       <div class="origDropMain">
-        <div class="origDropIcon"><img src="${escapeHtml(itemIconUrl(iconNum))}" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="origDropIcon"><img src="${escapeHtml(itemIconUrl(iconNum))}" alt="" loading="lazy" onerror="fallbackItemImage(this,'${escapeHtml(pad(iconNum))}')"></div>
         <div class="origDropText">
           <div class="origDropName" title="${escapeHtml(item.name || item.item_id || "-")}">${escapeHtml(item.name || item.item_id || "-")}</div>
           <div class="origDropId">ID: ${escapeHtml(realId || item.item_id || "-")}</div>
