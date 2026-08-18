@@ -76,7 +76,7 @@ function fixMojibake(value) {
 }
 
 function textOf(row) {
-  return `${row.name_th || ""} ${row.name || ""} ${row.real_id || ""} ${row.name_id || ""} ${row.code || ""} ${(row.monsters || []).join(" ")} ${(row.bosses || []).join(" ")}`.toLowerCase();
+  return `${row.name_th || ""} ${row.name || ""} ${row.real_id || ""} ${row.name_id || ""} ${row.code || ""} ${(row.locations || []).map((l) => l.map).join(" ")} ${(row.monsters || []).join(" ")} ${(row.bosses || []).join(" ")}`.toLowerCase();
 }
 
 function imageUrl(row, type) {
@@ -186,6 +186,7 @@ function monsterCardHtml(row, index) {
   const atk = String(row.damage || "-").replace(",", " - ");
   const def = row.defense || "-";
   const drops = (row.drops || []).length;
+  const locations = (row.locations || []).length;
   return `<article class="card monsterCard" data-index="${index}">
     <button class="save ${state.saved[key] ? "saved" : ""}" data-save="${index}" type="button" title="บันทึก"><i data-lucide="bookmark"></i></button>
     <div class="thumb monsterThumb"><img src="${imageUrl(row, "monster")}" alt="" loading="lazy" onerror="this.style.display='none'"></div>
@@ -196,13 +197,14 @@ function monsterCardHtml(row, index) {
       <div><span>ATK</span><b>${escapeHtml(atk)}</b></div>
       <div><span>DEF</span><b>${escapeHtml(def)}</b></div>
     </div>
-    <div class="monsterFoot"><i data-lucide="gift"></i> ดรอป ${drops.toLocaleString()} รายการ</div>
+    <div class="monsterFoot"><i data-lucide="map-pin"></i> เกิด ${locations.toLocaleString()} ที่ <span>•</span> <i data-lucide="gift"></i> ดรอป ${drops.toLocaleString()} รายการ</div>
   </article>`;
 }
 
 function openDetail(row) {
   const type = typeOf(row);
   const stats = type === "map" ? mapStats(row) : type === "monster" ? monsterStats(row) : itemStats(row);
+  const locations = type === "monster" ? monsterLocations(row) : "";
   const drops = type === "map" ? mapMembers(row) : type === "monster" ? monsterDrops(row) : itemDrops(row);
   els.detail.innerHTML = `<div class="detail">
     <div class="detailHead">
@@ -214,6 +216,7 @@ function openDetail(row) {
       </div>
     </div>
     <div class="statgrid">${stats || `<div class="stat"><span>ไม่มีค่าสเตตัสใน cache</span></div>`}</div>
+    ${locations ? `<h2 class="mt-5 text-lg">สถานที่เกิด</h2><div class="locationList">${locations}</div>` : ""}
     ${drops ? `<h2 class="mt-5 text-lg">${type === "map" ? "รายชื่อในแผนที่" : "ดรอป / หาได้จาก"}</h2><div class="dropList">${drops}</div>` : ""}
   </div>`;
   els.dialog.showModal();
@@ -258,6 +261,16 @@ function monsterDrops(row) {
   </div>`).join("");
 }
 
+function monsterLocations(row) {
+  const locations = row.locations || [];
+  if (!locations.length) return "";
+  return locations.slice(0, 120).map((loc) => `<div class="locationChip">
+    <i data-lucide="${loc.type === "boss" ? "crown" : "map-pin"}"></i>
+    <span>${escapeHtml(loc.map)}</span>
+    <b>${loc.type === "boss" ? "Boss" : "Mob"}</b>
+  </div>`).join("");
+}
+
 function mapStats(row) {
   return [
     ["Monster", row.monsters.length.toLocaleString()],
@@ -297,13 +310,50 @@ async function loadData() {
     fetch("data/monsters.json").then((r) => r.json()),
     fetch("data/maps.json").then((r) => r.json()),
   ]);
+  const fixedMaps = fixMojibake(maps);
   state.items = fixMojibake(items);
   state.monsters = fixMojibake(monsters);
-  state.maps = buildMapRows(fixMojibake(maps));
+  hydrateMonsterLocations(state.monsters, fixedMaps);
+  state.maps = buildMapRows(fixedMaps);
   els.status.textContent = `โหลดแล้ว: Item ${state.items.length.toLocaleString()} / Monster ${state.monsters.length.toLocaleString()} / Map ${state.maps.length.toLocaleString()}`;
   populateFilters();
   setMode(state.mode);
   applyFilters();
+}
+
+function hydrateMonsterLocations(monsters, data) {
+  const byName = new Map();
+  const byCode = new Map();
+  const add = (key, entry, group) => {
+    const rawKey = String(key || "").trim();
+    const mapName = String(typeof entry === "string" ? entry : entry?.map || "").trim();
+    if (!rawKey || !mapName) return;
+    for (const part of rawKey.split(",").map((value) => value.trim()).filter(Boolean)) {
+      const loc = { map: mapName, type: group === "bosses" ? "boss" : "mob" };
+      if (part.startsWith("role_")) {
+        if (!byCode.has(part)) byCode.set(part, []);
+        byCode.get(part).push(loc);
+      } else {
+        if (!byName.has(part)) byName.set(part, []);
+        byName.get(part).push(loc);
+      }
+    }
+  };
+  for (const group of ["monsters", "bosses"]) {
+    for (const [monsterName, maps] of Object.entries(data[group] || {})) {
+      for (const entry of maps || []) add(monsterName, entry, group);
+    }
+  }
+  for (const monster of monsters) {
+    const locations = [...(byName.get(monster.name_th) || []), ...(byCode.get(monster.code) || [])];
+    const seen = new Set();
+    monster.locations = locations.filter((loc) => {
+      const key = `${loc.type}:${loc.map}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
 }
 
 function buildMapRows(data) {

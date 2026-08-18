@@ -342,6 +342,34 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
 }
 .detail h2 { margin: 0 0 6px; font-size: 24px; }
 .statgrid, .dropList { display: grid; gap: 8px; margin-top: 16px; }
+.locationList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.locationChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 7px 9px;
+  border: 1px solid rgba(120, 53, 15, .32);
+  border-radius: 8px;
+  background: rgba(31, 41, 55, .45);
+  color: #e5e7eb;
+  font-size: 12px;
+}
+.locationChip svg {
+  width: 13px;
+  height: 13px;
+  color: #fbbf24;
+}
+.locationChip b {
+  color: #f59e0b;
+  font-size: 10px;
+  font-weight: 700;
+}
 .stat {
   display: flex;
   justify-content: space-between;
