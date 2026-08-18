@@ -75,12 +75,7 @@ const elemMainMap = {
   3: { name: "ไฟ", icon: "flame", cls: "text-red-400", weak: "น้ำ (Water)" },
   4: { name: "ลม", icon: "wind", cls: "text-emerald-300", weak: "ไฟ (Fire)" },
 };
-const manualMonsterLocations = {
-  26309: [{ map: "ถ้ำน้ำแข็ง", type: "boss", amount: 1, reborn: 0 }],
-  26310: [{ map: "ถ้ำน้ำแข็ง", type: "boss", amount: 1, reborn: 0 }],
-  90619: [{ map: "ถ้ำน้ำแข็ง", type: "boss", amount: 1, reborn: 0 }],
-  90620: [{ map: "ถ้ำน้ำแข็ง", type: "boss", amount: 1, reborn: 0 }],
-};
+const manualMonsterLocations = {};
 
 function pad(id) {
   const raw = String(id ?? "").trim();
