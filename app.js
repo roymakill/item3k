@@ -535,6 +535,11 @@ function hydrateMonsterLocations(monsters, data) {
       if (part.startsWith("role_")) {
         if (!byCode.has(part)) byCode.set(part, []);
         byCode.get(part).push(loc);
+        const folded = part.toLowerCase();
+        if (folded !== part) {
+          if (!byCode.has(folded)) byCode.set(folded, []);
+          byCode.get(folded).push(loc);
+        }
       } else {
         if (!byName.has(part)) byName.set(part, []);
         byName.get(part).push(loc);
@@ -550,6 +555,7 @@ function hydrateMonsterLocations(monsters, data) {
     const locations = [
       ...(byName.get(monster.name_th) || []),
       ...(byCode.get(monster.code) || []),
+      ...(byCode.get(String(monster.code || "").toLowerCase()) || []),
       ...(manualMonsterLocations[monster.name_id] || []),
     ];
     const seen = new Set();
@@ -564,14 +570,27 @@ function hydrateMonsterLocations(monsters, data) {
 
 function buildMapRows(data) {
   const byMap = new Map();
+  const byName = new Map();
+  const byCode = new Map();
+  for (const monster of state.monsters) {
+    if (monster.name_th) byName.set(monster.name_th, monster.name_th);
+    if (monster.code) {
+      byCode.set(monster.code, monster.name_th || monster.name || monster.code);
+      byCode.set(String(monster.code).toLowerCase(), monster.name_th || monster.name || monster.code);
+    }
+  }
+  const resolveMonsterName = (key) => byCode.get(key) || byCode.get(String(key).toLowerCase()) || byName.get(key) || key;
   const add = (mapName, monsterName, group) => {
     const name = String(mapName || "").trim();
-    const monster = String(monsterName || "").trim();
-    if (!name || !monster) return;
+    const rawMonster = String(monsterName || "").trim();
+    if (!name || !rawMonster) return;
     if (!byMap.has(name)) byMap.set(name, { kind: "map", name, monsters: [], bosses: [], total: 0 });
     const row = byMap.get(name);
     const list = group === "bosses" ? row.bosses : row.monsters;
-    if (!list.includes(monster)) list.push(monster);
+    for (const part of rawMonster.split(",").map((value) => value.trim()).filter(Boolean)) {
+      const monster = resolveMonsterName(part);
+      if (!list.includes(monster)) list.push(monster);
+    }
   };
   for (const group of ["monsters", "bosses"]) {
     for (const [monsterName, maps] of Object.entries(data[group] || {})) {
