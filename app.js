@@ -110,6 +110,11 @@ function imageError(row, type) {
   return `fallbackItemImage(this,'${escapeHtml(icon)}')`;
 }
 
+function imageEvents(row, type) {
+  if (type === "monster") return `onload="fitMonsterImage(this)" onerror="this.style.display='none'"`;
+  return `onerror="${imageError(row, type)}"`;
+}
+
 function fallbackItemImage(img, icon) {
   const step = Number(img.dataset.fallbackStep || 0);
   img.dataset.fallbackStep = String(step + 1);
@@ -122,6 +127,15 @@ function fallbackItemImage(img, icon) {
     return;
   }
   img.style.display = "none";
+}
+
+function fitMonsterImage(img) {
+  const width = img.naturalWidth || 1;
+  const height = img.naturalHeight || 1;
+  const ratio = height / width;
+  const fittedMinorAxis = ratio > 1 ? 1 / ratio : ratio;
+  const scale = fittedMinorAxis < 0.62 ? Math.min(2.15, 0.68 / fittedMinorAxis) : 1;
+  img.style.setProperty("--monster-scale", scale.toFixed(2));
 }
 
 function saveKey(row) {
@@ -210,7 +224,7 @@ function cardHtml(row, index) {
     : [`Lv.${row.level || "-"}`, `ซื้อ ${Number(row.cost || 0).toLocaleString()}`, `ขาย ${Number(row.sell || 0).toLocaleString()}`];
   return `<article class="card" data-index="${index}">
     <button class="save ${state.saved[key] ? "saved" : ""}" data-save="${index}" type="button" title="บันทึก"><i data-lucide="bookmark"></i></button>
-    ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" loading="lazy" onerror="${imageError(row, type)}"></div>`}
+    ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" loading="lazy" ${imageEvents(row, type)}></div>`}
     <div>
       <div class="name">${escapeHtml(name)}</div>
       <div class="meta">${escapeHtml(sub)}</div>
@@ -229,7 +243,7 @@ function monsterCardHtml(row, index) {
   const locations = (row.locations || []).length;
   return `<article class="card monsterCard" data-index="${index}">
     <button class="save ${state.saved[key] ? "saved" : ""}" data-save="${index}" type="button" title="บันทึก"><i data-lucide="bookmark"></i></button>
-    <div class="thumb monsterThumb"><img src="${imageUrl(row, "monster")}" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+    <div class="thumb monsterThumb"><img src="${imageUrl(row, "monster")}" alt="" loading="lazy" ${imageEvents(row, "monster")}></div>
     <div class="monsterName">${escapeHtml(name)}</div>
     <div class="monsterMeta">LV ${escapeHtml(row.level || "-")} HP ${hp}</div>
     <div class="monsterStats">
@@ -255,7 +269,7 @@ function openDetail(row) {
   const drops = type === "map" ? mapMembers(row) : type === "monster" ? monsterDrops(row) : itemDrops(row);
   els.detail.innerHTML = `<div class="detail">
     <div class="detailHead">
-      ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" onerror="${imageError(row, type)}"></div>`}
+      ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" ${imageEvents(row, type)}></div>`}
       <div>
         <h2>${escapeHtml(row.name_th || row.name || row.code || "-")}</h2>
         <div class="meta">${escapeHtml(row.code || "")}</div>
@@ -277,7 +291,7 @@ function monsterDetail(row) {
   const skills = monsterSkills(row);
   return `<div class="detail monsterDetail">
     <div class="monsterDetailHead">
-      <div class="monsterPortrait"><img src="${imageUrl(row, "monster")}" alt="" onerror="this.style.display='none'"></div>
+      <div class="monsterPortrait"><img src="${imageUrl(row, "monster")}" alt="" ${imageEvents(row, "monster")}></div>
       <div class="monsterTitleBlock">
         <div class="monsterModalTop">
           <h2>${escapeHtml(row.name_th || row.name || row.code || "-")}</h2>
@@ -492,7 +506,7 @@ function itemDrops(row) {
     const jump = mob.name_th || mob.name || mob.code || "";
     return `<div class="origDropRow" data-jump-view="monsters" data-jump-search="${escapeHtml(jump)}">
       <div class="origDropMain">
-        <div class="origDropIcon"><img src="${escapeHtml(imageUrl(mob, "monster"))}" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="origDropIcon"><img src="${escapeHtml(imageUrl(mob, "monster"))}" alt="" loading="lazy" ${imageEvents(mob, "monster")}></div>
         <div class="origDropText">
           <div class="origDropName" title="${escapeHtml(jump)}">${escapeHtml(jump)}</div>
           <div class="origDropId">Lv.${escapeHtml(String(mob.level || "-"))}</div>

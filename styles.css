@@ -193,6 +193,7 @@ select { max-width: 180px; }
   max-height: none;
   object-fit: contain;
   object-position: center center;
+  transform: scale(var(--monster-scale, 1));
 }
 .mapThumb {
   color: var(--cyan);
@@ -378,6 +379,7 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
   max-height: 100% !important;
   object-fit: contain !important;
   object-position: center center !important;
+  transform: scale(var(--monster-scale, 1)) !important;
 }
 .monsterTitleBlock {
   min-width: 0;
