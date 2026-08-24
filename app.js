@@ -423,9 +423,10 @@ function monsterDrops(row) {
     const iconNum = String(item.icon || realId || "").trim();
     const jump = realId || item.item_id || item.name || "";
     const oneIn = item.one_in && item.one_in !== "0" ? `1 ใน ${item.one_in}` : "";
+    const icon = iconNum ? `<img src="${escapeHtml(itemIconUrl(iconNum))}" alt="" loading="lazy" onerror="fallbackItemImage(this,'${escapeHtml(pad(iconNum))}')">` : "";
     return `<div class="origDropRow" data-jump-view="items" data-jump-search="${escapeHtml(jump)}">
       <div class="origDropMain">
-        <div class="origDropIcon"><img src="${escapeHtml(itemIconUrl(iconNum))}" alt="" loading="lazy" onerror="fallbackItemImage(this,'${escapeHtml(pad(iconNum))}')"></div>
+        <div class="origDropIcon">${icon}</div>
         <div class="origDropText">
           <div class="origDropName" title="${escapeHtml(item.name || item.item_id || "-")}">${escapeHtml(item.name || item.item_id || "-")}</div>
           <div class="origDropId">ID: ${escapeHtml(realId || item.item_id || "-")}</div>
@@ -542,7 +543,7 @@ function escapeHtml(value) {
 async function loadData() {
   const [items, monsters, maps] = await Promise.all([
     fetch("data/items.json").then((r) => r.json()),
-    fetch("data/monsters.json?v=20260824-player-drop-fix").then((r) => r.json()),
+    fetch("data/monsters.json?v=20260824-lv1-90-drops").then((r) => r.json()),
     fetch("data/maps.json").then((r) => r.json()),
   ]);
   const fixedMaps = fixMojibake(maps);
