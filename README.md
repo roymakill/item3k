@@ -1,6 +1,6 @@
-# 3K Data DB Clone
+# 3K Data DB Mill
 
-เว็บเช็คข้อมูล 3K ที่ดึงข้อมูล public จ
+เว็บเช็คข้อมูล 3K ที่ดึงข้อมูล public 
 
 ## ใช้งาน
 
