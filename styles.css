@@ -752,21 +752,98 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
 .cyan { color: var(--cyan); }
 .green { color: var(--green); }
 
+.filterFields { display: contents; }
+.toolbar .filterToggle { display: none; }
+.summary { align-items: center; }
+.viewBtns svg { width: 18px; height: 18px; }
+button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
 @media (max-width: 720px) {
-  .topbar { align-items: flex-start; flex-direction: column; }
-  .toolbar { align-items: stretch; }
-  .toolbar > * { flex: 1 1 100%; max-width: none; }
-  .level { flex-basis: calc(50% - 4px); }
-  .summary { flex-direction: column; }
-  .detailHead { grid-template-columns: 1fr; }
-  .monsterDetailHead,
-  .monsterDetailGrid {
-    grid-template-columns: 1fr;
+  body { padding: 12px; }
+  .topbar {
+    position: static;
+    display: block;
+    padding: 0 0 12px;
+    margin-bottom: 12px;
+    border: 0;
+    border-bottom: 1px solid #303238;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
   }
-  .compactStats {
-    grid-template-columns: 1fr;
+  h1 { font-size: 20px; }
+  .topbar p { font-size: 10px; overflow-wrap: anywhere; }
+  .tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-top: 12px; }
+  .tabs button { flex-direction: column; gap: 3px; padding: 6px 2px; min-height: 52px; font-size: 12px; }
+  .tabs .active, .viewBtns .active { background: #332a16; color: #fbbf24; box-shadow: none; }
+  .tabs button, .viewBtns button, .toolbar input, .toolbar select, .toolbar button { background-color: #191b20; border-color: #35373e; }
+  .toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
   }
-  .skillCard {
-    flex-wrap: wrap;
-  }
+  .searchbox { min-width: 0; }
+  .searchbox input { min-height: 44px; min-width: 0; font-size: 16px; }
+  .toolbar .filterToggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; min-height: 44px; padding: 0; }
+  .filterToggle span { display: none; }
+  .filterToggle[aria-expanded="true"] { color: #fbbf24; border-color: #fbbf24; }
+  .filterFields { display: none; grid-column: 1 / -1; }
+  .filterFields.expanded { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 4px 0 8px; }
+  .filterFields > * { min-width: 0; width: 100%; max-width: none; min-height: 44px; font-size: 16px; }
+  #sortFilter { grid-column: 1 / -1; }
+  .summary { padding: 8px 0; gap: 8px; font-size: 12px; }
+  .viewBtns { flex-wrap: nowrap; gap: 4px; }
+  .viewBtns button { width: 44px; height: 44px; padding: 0; }
+  .results.gridView, .results.gridView.monsterResults { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .gridView .card, .gridView .monsterCard { padding: 10px 8px; border-radius: 8px; background: #15171b; border-color: #34353c; }
+  .gridView .monsterCard { min-height: 228px; }
+  .gridView .monsterThumb { margin: 4px auto 8px; }
+  .monsterName { font-size: 13px; line-height: 1.4; }
+  .monsterMeta { font-size: 10px; margin-bottom: 6px; }
+  .monsterStats { gap: 3px; }
+  .monsterStats div { min-width: 0; padding: 4px 1px; background: transparent; border: 0; }
+  .monsterStats b { overflow-wrap: anywhere; font-size: 10px; }
+  .monsterFoot { flex-wrap: wrap; gap: 3px; font-size: 9px; padding-top: 6px; color: #a1a1aa; }
+  .monsterFoot svg { flex-shrink: 0; width: 11px; height: 11px; }
+  .save, .monsterCard .save { width: 44px; height: 44px; top: 0; }
+  .monsterCard .save { right: 0; }
+  .listView .card, .listView .monsterCard { grid-template-columns: 62px minmax(0, 1fr); gap: 6px 12px; padding: 10px; }
+  .listView .thumb { grid-row: 1 / 4; }
+  .listView .name, .listView .monsterName { padding-right: 28px; }
+  .listView .monsterMeta, .listView .monsterStats, .listView .pillrow { grid-column: 2; }
+  .listView .monsterStats { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; }
+  dialog { width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0; border: 0; border-radius: 0; background: #111317; }
+  .close { top: 8px; width: 44px; height: 44px; margin: 8px; display: grid; place-items: center; background: #191b20; border: 1px solid #35373e; border-radius: 6px; }
+  .detail, .monsterDetail { clear: both; padding: 4px 16px 24px; }
+  .detailHead, .monsterDetailHead { grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 0 0 16px; border: 0; border-bottom: 1px solid #303238; border-radius: 0; background: transparent; }
+  .monsterPortrait { width: 96px; height: 96px; }
+  .detail h2, .monsterModalTop h2 { font-size: 20px; overflow-wrap: anywhere; }
+  .monsterTitleBlock > .meta { overflow-wrap: anywhere; font-size: 9px; }
+  .monsterTitleBlock .pillrow { justify-content: flex-start; gap: 3px; margin-top: 6px; }
+  .monsterElementSummary { gap: 4px; margin-top: 6px; }
+  .mainElement, .weakElement { padding: 3px 4px; font-size: 10px; gap: 3px; }
+  .monsterDetailGrid { grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: 0; }
+  .detailPanel { padding: 14px 0; border: 0; border-bottom: 1px solid #303238; border-radius: 0; background: transparent; }
+  .detailPanel h3 { font-size: 13px; color: #e5e7eb; border: 0; margin-bottom: 8px; padding: 0; }
+  .compactStats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; margin-top: 0; }
+  .compactStats .stat { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 3px 0; border: 0; background: transparent; border-radius: 0; font-size: 12px; min-width: 0; }
+  .compactStats .stat > * { min-width: 0; overflow-wrap: anywhere; }
+  .locationList { gap: 6px; margin-top: 4px; }
+  .locationChip { flex-wrap: wrap; overflow-wrap: anywhere; font-size: 11px; background: #1b1d22; border-color: #35373e; }
+  .dropsPanel { order: 1; }
+  .skillsPanel { order: 2; }
+  .dropList, .skillList { max-height: none; overflow: visible; padding-right: 0; }
+  .origDropName { white-space: normal; overflow-wrap: anywhere; font-size: 12px; }
+  .origDropRow { min-height: 52px; }
+  .skillCard { flex-wrap: wrap; }
+  .skillCode { overflow-wrap: anywhere; }
 }

@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260914-monster-contain">
+  <link rel="stylesheet" href="styles.css?v=20260914-mobile-layout">
 </head>
 <body>
   <header class="topbar">
@@ -29,6 +29,8 @@
         <i data-lucide="search"></i>
         <input id="searchInput" type="search" placeholder="ค้นหาชื่อ / ID / code">
       </label>
+      <button id="filterToggle" class="filterToggle" type="button" aria-expanded="false" aria-controls="filterFields" title="ตัวกรอง"><i data-lucide="sliders-horizontal"></i><span>ตัวกรอง</span></button>
+      <div id="filterFields" class="filterFields">
       <select id="categoryFilter" title="หมวดหมู่"></select>
       <select id="jobFilter" title="อาชีพ"></select>
       <select id="sortFilter" title="เรียงข้อมูล">
@@ -41,15 +43,15 @@
       <input id="minLevel" class="level" type="number" min="0" placeholder="Lv-">
       <input id="maxLevel" class="level" type="number" min="0" placeholder="Lv+">
       <button id="resetBtn" class="iconbtn" type="button" title="ล้างตัวกรอง"><i data-lucide="rotate-ccw"></i></button>
-      <div class="viewBtns" aria-label="Display mode">
-        <button id="gridBtn" class="active" type="button" title="Grid"><i data-lucide="layout-grid"></i></button>
-        <button id="listBtn" type="button" title="List"><i data-lucide="list"></i></button>
       </div>
     </section>
 
     <section class="summary">
       <span id="countText">0 รายการ</span>
-      <span>กดการ์ดเพื่อดูรายละเอียด</span>
+      <div class="viewBtns" aria-label="Display mode">
+        <button id="gridBtn" class="active" type="button" title="Grid"><i data-lucide="layout-grid"></i></button>
+        <button id="listBtn" type="button" title="List"><i data-lucide="list"></i></button>
+      </div>
     </section>
 
     <section id="results" class="results gridView" aria-live="polite"></section>
@@ -60,6 +62,6 @@
     <div id="detailContent"></div>
   </dialog>
 
-  <script src="app.js?v=20260914-monster-contain"></script>
+  <script src="app.js?v=20260914-mobile-layout"></script>
 </body>
 </html>

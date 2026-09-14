@@ -305,11 +305,11 @@ function monsterDetail(row) {
       <section class="detailPanel">
         ${elements || `<h3>Elements Info</h3><div class="origDropEmpty">ไม่พบข้อมูลธาตุ</div>`}
       </section>
-      <section class="detailPanel">
+      <section class="detailPanel skillsPanel">
         <h3>Skills (Special Attack)</h3>
         <div class="skillList">${skills || `<div class="origDropEmpty">ไม่มีสกิลพิเศษ</div>`}</div>
       </section>
-      <section class="detailPanel widePanel">
+      <section class="detailPanel widePanel dropsPanel">
         <h3>Drop List</h3>
         <div class="dropList">${monsterDrops(row)}</div>
       </section>
@@ -668,6 +668,11 @@ els.detail.addEventListener("click", (event) => {
 });
 
 [els.search, els.cat, els.job, els.sort, els.min, els.max].forEach((el) => el.addEventListener("input", applyFilters));
+$("filterToggle").addEventListener("click", () => {
+  const expanded = $("filterToggle").getAttribute("aria-expanded") !== "true";
+  $("filterToggle").setAttribute("aria-expanded", String(expanded));
+  $("filterFields").classList.toggle("expanded", expanded);
+});
 els.itemTab.addEventListener("click", () => setActiveView("items"));
 els.monsterTab.addEventListener("click", () => setActiveView("monsters"));
 els.mapTab.addEventListener("click", () => setActiveView("maps"));
