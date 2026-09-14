@@ -111,7 +111,7 @@ function imageError(row, type) {
 }
 
 function imageEvents(row, type) {
-  if (type === "monster") return `onload="fitMonsterImage(this)" onerror="this.style.display='none'"`;
+  if (type === "monster") return `onerror="this.style.display='none'"`;
   return `onerror="${imageError(row, type)}"`;
 }
 
@@ -127,15 +127,6 @@ function fallbackItemImage(img, icon) {
     return;
   }
   img.style.display = "none";
-}
-
-function fitMonsterImage(img) {
-  const width = img.naturalWidth || 1;
-  const height = img.naturalHeight || 1;
-  const ratio = height / width;
-  const fittedMinorAxis = ratio > 1 ? 1 / ratio : ratio;
-  const scale = fittedMinorAxis < 0.62 ? Math.min(2.15, 0.68 / fittedMinorAxis) : 1;
-  img.style.setProperty("--monster-scale", scale.toFixed(2));
 }
 
 function saveKey(row) {
