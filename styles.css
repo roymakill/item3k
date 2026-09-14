@@ -753,6 +753,8 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
 .green { color: var(--green); }
 
 .filterFields { display: contents; }
+.itemLevel { margin-top: 8px; color: var(--muted); font-size: 12px; }
+.itemLevel strong { margin-left: 4px; color: #fbbf24; font-weight: 700; }
 .toolbar .filterToggle { display: none; }
 .summary { align-items: center; }
 .viewBtns svg { width: 18px; height: 18px; }

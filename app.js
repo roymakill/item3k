@@ -220,6 +220,7 @@ function cardHtml(row, index) {
       <div class="name">${escapeHtml(name)}</div>
       <div class="meta">${escapeHtml(sub)}</div>
       <div class="pillrow">${pills.map((p) => `<span class="pill">${escapeHtml(p)}</span>`).join("")}</div>
+      ${type === "item" ? `<div class="itemLevel">Lv <strong>${escapeHtml(String(row.level ?? "-"))}</strong></div>` : ""}
     </div>
   </article>`;
 }
