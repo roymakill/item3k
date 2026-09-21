@@ -512,9 +512,25 @@ function mapStats(row) {
   ].map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join("");
 }
 
+function findMonsterByMapName(name, role) {
+  const boss = role === "boss";
+  return state.monsters.find((mob) => mob.name_th === name && Boolean(mob.is_boss) === boss)
+    || state.monsters.find((mob) => mob.name_th === name)
+    || null;
+}
+
+function mapMemberRow(name, role) {
+  const monster = findMonsterByMapName(name, role);
+  const label = role === "boss" ? "Boss" : "Monster";
+  if (!monster) return `<div class="stat"><span>${escapeHtml(name)}</span><b class="${role === "boss" ? "accent" : ""}">${label}</b></div>`;
+  return `<button class="stat mapMember" type="button" data-open-monster="${escapeHtml(name)}" data-open-monster-role="${role}">
+    <span>${escapeHtml(name)}</span><b class="${role === "boss" ? "accent" : ""}">${label}</b>
+  </button>`;
+}
+
 function mapMembers(row) {
-  const monsterRows = row.monsters.map((name) => `<div class="stat"><span>${escapeHtml(name)}</span><b>Monster</b></div>`);
-  const bossRows = row.bosses.map((name) => `<div class="stat"><span>${escapeHtml(name)}</span><b class="accent">Boss</b></div>`);
+  const monsterRows = row.monsters.map((name) => mapMemberRow(name, "monster"));
+  const bossRows = row.bosses.map((name) => mapMemberRow(name, "boss"));
   return [...bossRows, ...monsterRows].slice(0, 160).join("");
 }
 
@@ -699,6 +715,15 @@ document.addEventListener("click", (event) => {
 });
 
 els.detail.addEventListener("click", (event) => {
+  const member = event.target.closest("[data-open-monster]");
+  if (member) {
+    const monster = findMonsterByMapName(member.dataset.openMonster || "", member.dataset.openMonsterRole || "");
+    if (!monster) return;
+    els.detail.innerHTML = monsterDetail(monster);
+    els.dialog.scrollTop = 0;
+    lucide.createIcons();
+    return;
+  }
   const jump = event.target.closest("[data-jump-view]");
   if (!jump) return;
   const view = jump.dataset.jumpView;

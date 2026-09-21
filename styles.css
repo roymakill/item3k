@@ -606,6 +606,18 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
   background: rgba(255,255,255,.035);
 }
 .dropList .stat { cursor: pointer; }
+.mapMember {
+  width: 100%;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s, background-color .15s, transform .15s;
+}
+.mapMember:hover {
+  border-color: rgba(245, 158, 11, .45);
+  background: rgba(245, 158, 11, .08);
+  transform: translateY(-1px);
+}
 .origDropRow {
   padding: 8px;
   border: 1px solid rgba(120, 53, 15, .2);
