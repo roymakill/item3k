@@ -115,6 +115,41 @@ select { max-width: 180px; }
   gap: 16px;
 }
 .results.listView { display: grid; gap: 8px; }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 18px 0 0;
+}
+.pageBtn {
+  min-width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #151921;
+  color: #e5e7eb;
+  padding: 0 10px;
+}
+.pageBtn:hover:not(:disabled),
+.pageBtn.active {
+  border-color: #f59e0b;
+  background: #2a1b12;
+  color: #fbbf24;
+}
+.pageBtn.active {
+  font-weight: 800;
+}
+.pageBtn:disabled {
+  cursor: not-allowed;
+  opacity: .4;
+}
+.pageDots {
+  min-width: 24px;
+  text-align: center;
+  color: var(--muted);
+}
 .card {
   position: relative;
   min-width: 0;

@@ -1,10 +1,11 @@
 const IMG_ITEM = "items/";
 const IMG_MONSTER = "boss/";
-const PAGE_SIZE = 120;
+const PAGE_SIZE = 20;
 
 const state = {
   view: "items",
   mode: localStorage.getItem("3kdb_mode") || "grid",
+  page: 1,
   items: [],
   monsters: [],
   maps: [],
@@ -135,6 +136,7 @@ function saveKey(row) {
 
 function setActiveView(view) {
   state.view = view;
+  state.page = 1;
   for (const btn of [els.itemTab, els.monsterTab, els.mapTab, els.favTab]) btn.classList.remove("active");
   ({ items: els.itemTab, monsters: els.monsterTab, maps: els.mapTab, fav: els.favTab }[view]).classList.add("active");
   const itemFilters = view === "items";
@@ -158,6 +160,7 @@ function populateFilters() {
 }
 
 function applyFilters() {
+  state.page = 1;
   const q = els.search.value.trim().toLowerCase();
   const min = Number(els.min.value || 0);
   const max = Number(els.max.value || 9999);
@@ -181,6 +184,31 @@ function applyFilters() {
   render();
 }
 
+function pageNumbers(current, total) {
+  if (total <= 12) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages = new Set([1, 2, total - 1, total, current - 2, current - 1, current, current + 1, current + 2]);
+  const nums = [...pages].filter((page) => page >= 1 && page <= total).sort((a, b) => a - b);
+  const result = [];
+  for (const page of nums) {
+    if (result.length && page - result[result.length - 1] > 1) result.push("...");
+    result.push(page);
+  }
+  return result;
+}
+
+function paginationHtml(totalPages) {
+  if (totalPages <= 1) return "";
+  const pages = pageNumbers(state.page, totalPages).map((page) => {
+    if (page === "...") return `<span class="pageDots">...</span>`;
+    return `<button class="pageBtn ${page === state.page ? "active" : ""}" type="button" data-page="${page}">${page}</button>`;
+  }).join("");
+  return `<nav class="pagination" aria-label="หน้า">
+    <button class="pageBtn" type="button" data-page="${state.page - 1}" ${state.page <= 1 ? "disabled" : ""}>ก่อนหน้า</button>
+    ${pages}
+    <button class="pageBtn" type="button" data-page="${state.page + 1}" ${state.page >= totalPages ? "disabled" : ""}>ถัดไป</button>
+  </nav>`;
+}
+
 function sorter(type) {
   const num = (row, key) => Number(String(row[key] || "0").replace(/,/g, ""));
   return {
@@ -192,13 +220,16 @@ function sorter(type) {
 }
 
 function render() {
-  els.count.textContent = `${state.filtered.length.toLocaleString()} รายการ`;
-  const rows = state.filtered.slice(0, PAGE_SIZE);
+  document.querySelector(".pagination")?.remove();
+  const totalPages = Math.max(1, Math.ceil(state.filtered.length / PAGE_SIZE));
+  state.page = Math.min(Math.max(1, state.page), totalPages);
+  const start = (state.page - 1) * PAGE_SIZE;
+  const end = start + PAGE_SIZE;
+  els.count.textContent = `${state.filtered.length.toLocaleString()} รายการ • หน้า ${state.page.toLocaleString()} / ${totalPages.toLocaleString()}`;
+  const rows = state.filtered.slice(start, end);
   els.results.classList.toggle("monsterResults", state.view === "monsters");
-  els.results.innerHTML = rows.map(cardHtml).join("") || `<div class="card">ไม่พบข้อมูล</div>`;
-  if (state.filtered.length > PAGE_SIZE) {
-    els.results.insertAdjacentHTML("beforeend", `<div class="card"><div class="name">แสดง ${PAGE_SIZE.toLocaleString()} รายการแรก</div><div class="meta">พิมพ์คำค้นหรือกรองข้อมูลเพิ่มเพื่อเจาะจงรายการ</div></div>`);
-  }
+  els.results.innerHTML = rows.map((row, index) => cardHtml(row, start + index)).join("") || `<div class="card">ไม่พบข้อมูล</div>`;
+  els.results.insertAdjacentHTML("afterend", paginationHtml(totalPages));
   lucide.createIcons();
 }
 
@@ -654,6 +685,17 @@ els.results.addEventListener("click", (event) => {
     return;
   }
   openDetail(row);
+});
+
+document.addEventListener("click", (event) => {
+  const btn = event.target.closest("[data-page]");
+  if (!btn) return;
+  const page = Number(btn.dataset.page);
+  const totalPages = Math.max(1, Math.ceil(state.filtered.length / PAGE_SIZE));
+  if (!page || page < 1 || page > totalPages || page === state.page) return;
+  state.page = page;
+  render();
+  window.scrollTo({ top: els.results.offsetTop - 90, behavior: "smooth" });
 });
 
 els.detail.addEventListener("click", (event) => {
