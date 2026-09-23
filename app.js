@@ -1,7 +1,6 @@
 const IMG_ITEM = "items/";
 const IMG_MONSTER = "boss/";
 const PAGE_SIZE = 20;
-const LUCKY_BAG_TEXT = "ถุงโชคดี";
 const ZODIAC_BAG_ID = "11851";
 const ZODIAC_BAG_CONTENTS = [
   { real_id: "4439", name: "ยันต์วิญญาณ12นักษัตรชวด", percent: "1.00%" },
@@ -39,7 +38,6 @@ const els = {
   search: $("searchInput"),
   cat: $("categoryFilter"),
   job: $("jobFilter"),
-  luckyBag: $("luckyBagFilter"),
   sort: $("sortFilter"),
   min: $("minLevel"),
   max: $("maxLevel"),
@@ -159,7 +157,6 @@ function setActiveView(view) {
   const itemFilters = view === "items";
   els.cat.disabled = !itemFilters;
   els.job.disabled = !itemFilters;
-  els.luckyBag.disabled = view === "maps";
   applyFilters();
 }
 
@@ -191,7 +188,6 @@ function applyFilters() {
     const level = Number(row.level || 0);
     if (q && !textOf(row).includes(q)) return false;
     if (row.kind !== "map" && (level < min || level > max)) return false;
-    if (state.view !== "maps" && els.luckyBag.value && !matchesLuckyBagFilter(row)) return false;
     if (state.view === "items") {
       if (els.cat.value && row.cat_key !== els.cat.value) return false;
       if (els.job.value && !(row.job || []).includes(els.job.value)) return false;
@@ -621,24 +617,6 @@ function cleanPercent(percent) {
   return String(percent || "").replace(/\s*\(Aggregated\)/gi, "");
 }
 
-function isLuckyBagName(name) {
-  return String(name || "").includes(LUCKY_BAG_TEXT);
-}
-
-function isLuckyBagItem(row) {
-  return isLuckyBagName(row.name_th || row.name) || row.cat_name === LUCKY_BAG_TEXT || row.sub_name === LUCKY_BAG_TEXT;
-}
-
-function luckyBagDrops(row) {
-  return (row.drops || []).filter((drop) => isLuckyBagName(drop.name));
-}
-
-function matchesLuckyBagFilter(row) {
-  if (!els.luckyBag.value) return true;
-  if (row.kind === "map") return false;
-  return state.monsters.includes(row) ? luckyBagDrops(row).length > 0 : isLuckyBagItem(row);
-}
-
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 }
@@ -646,7 +624,7 @@ function escapeHtml(value) {
 async function loadData() {
   const [items, monsters, maps] = await Promise.all([
     fetch("data/items.json").then((r) => r.json()),
-    fetch("data/monsters.json?v=20260923-zodiac-bag-drops").then((r) => r.json()),
+    fetch("data/monsters.json?v=20260923-remove-lucky-filter").then((r) => r.json()),
     fetch("data/maps.json").then((r) => r.json()),
   ]);
   const fixedMaps = fixMojibake(maps);
@@ -799,7 +777,7 @@ els.detail.addEventListener("click", (event) => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
-[els.search, els.cat, els.job, els.luckyBag, els.sort, els.min, els.max].forEach((el) => el.addEventListener("input", applyFilters));
+[els.search, els.cat, els.job, els.sort, els.min, els.max].forEach((el) => el.addEventListener("input", applyFilters));
 $("filterToggle").addEventListener("click", () => {
   const expanded = $("filterToggle").getAttribute("aria-expanded") !== "true";
   $("filterToggle").setAttribute("aria-expanded", String(expanded));

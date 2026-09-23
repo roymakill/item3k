@@ -848,7 +848,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
   .filterFields { display: none; grid-column: 1 / -1; }
   .filterFields.expanded { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 4px 0 8px; }
   .filterFields > * { min-width: 0; width: 100%; max-width: none; min-height: 44px; font-size: 16px; }
-  #luckyBagFilter, #sortFilter { grid-column: 1 / -1; }
+  #sortFilter { grid-column: 1 / -1; }
   .summary { padding: 8px 0; gap: 8px; font-size: 12px; }
   .viewBtns { flex-wrap: nowrap; gap: 4px; }
   .viewBtns button { width: 44px; height: 44px; padding: 0; }
