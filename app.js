@@ -322,7 +322,7 @@ function openDetail(row) {
     <div class="statgrid">${stats || `<div class="stat"><span>ไม่มีค่าสเตตัสใน cache</span></div>`}</div>
     ${elements}
     ${locations ? `<h2 class="mt-5 text-lg">สถานที่เกิด</h2><div class="locationList">${locations}</div>` : ""}
-    ${bagContents ? `<h2 class="mt-5 text-lg">ของในถุง / อัตราได้รับ</h2><div class="dropList bagContentList">${bagContents}</div>` : ""}
+    ${bagContents ? `<h2 class="mt-5 text-lg">ไอเทมดรอปในถุง</h2><div class="dropList bagContentList">${bagContents}</div>` : ""}
     ${drops ? `<h2 class="mt-5 text-lg">${dropHeading(type)}</h2><div class="dropList">${drops}</div>` : ""}
   </div>`;
   els.dialog.showModal();
@@ -404,7 +404,7 @@ function itemStats(row) {
   }
   if (row.job?.length) parts.push(`<div class="stat"><span>อาชีพ</span><b>${row.job.map((j) => jobMap[j] || j).join(", ")}</b></div>`);
   if (String(row.real_id || row.name_id || "") === ZODIAC_BAG_ID) {
-    parts.push(`<div class="stat"><span>ของในถุง</span><b>${ZODIAC_BAG_CONTENTS.length.toLocaleString()} รายการ</b></div>`);
+    parts.push(`<div class="stat"><span>ไอเทมดรอปในถุง</span><b>${ZODIAC_BAG_CONTENTS.length.toLocaleString()} รายการ</b></div>`);
   }
   parts.push(`<div class="stat"><span>ราคา</span><b><span class="accent">ซื้อ ${Number(row.cost || 0).toLocaleString()}</span> / <span class="green">ขาย ${Number(row.sell || 0).toLocaleString()}</span></b></div>`);
   return parts.join("");
@@ -573,7 +573,7 @@ function itemBagContents(row) {
           <div class="origDropId">ID: ${escapeHtml(entry.real_id)}</div>
         </div>
         <div class="origDropRate">
-          <div class="${percentClass(entry.percent)}">Rate: ${escapeHtml(entry.percent)}</div>
+          <div class="${percentClass(entry.percent)}">โอกาสได้รับ ${escapeHtml(entry.percent)}</div>
         </div>
       </div>
     </div>`;
@@ -646,7 +646,7 @@ function escapeHtml(value) {
 async function loadData() {
   const [items, monsters, maps] = await Promise.all([
     fetch("data/items.json").then((r) => r.json()),
-    fetch("data/monsters.json?v=20260923-zodiac-bag").then((r) => r.json()),
+    fetch("data/monsters.json?v=20260923-zodiac-bag-drops").then((r) => r.json()),
     fetch("data/maps.json").then((r) => r.json()),
   ]);
   const fixedMaps = fixMojibake(maps);
