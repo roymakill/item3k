@@ -2,6 +2,21 @@ const IMG_ITEM = "items/";
 const IMG_MONSTER = "boss/";
 const PAGE_SIZE = 20;
 const LUCKY_BAG_TEXT = "ถุงโชคดี";
+const ZODIAC_BAG_ID = "11851";
+const ZODIAC_BAG_CONTENTS = [
+  { real_id: "4439", name: "ยันต์วิญญาณ12นักษัตรชวด", percent: "1.00%" },
+  { real_id: "4440", name: "ยันต์วิญญาณ12นักษัตรฉลู", percent: "1.00%" },
+  { real_id: "4441", name: "ยันต์วิญญาณ12นักษัตรขาล", percent: "1.00%" },
+  { real_id: "4442", name: "ยันต์วิญญาณ12นักษัตรเถาะ", percent: "4.00%" },
+  { real_id: "4443", name: "ยันต์วิญญาณ12นักษัตรมะโรง", percent: "4.00%" },
+  { real_id: "4444", name: "ยันต์วิญญาณ12นักษัตรมะเส็ง", percent: "1.00%" },
+  { real_id: "4445", name: "ยันต์วิญญาณ12นักษัตรมะเมีย", percent: "4.00%" },
+  { real_id: "4446", name: "ยันต์วิญญาณ12นักษัตรมะแม", percent: "20.00%" },
+  { real_id: "4447", name: "ยันต์วิญญาณ12นักษัตรวอก", percent: "4.00%" },
+  { real_id: "4448", name: "ยันต์วิญญาณ12นักษัตรระกา", percent: "20.00%" },
+  { real_id: "4449", name: "ยันต์วิญญาณ12นักษัตรจอ", percent: "20.00%" },
+  { real_id: "4450", name: "ยันต์วิญญาณ12นักษัตรกุน", percent: "20.00%" },
+];
 
 const state = {
   view: "items",
@@ -293,6 +308,7 @@ function openDetail(row) {
   const stats = type === "map" ? mapStats(row) : type === "monster" ? monsterStats(row) : itemStats(row);
   const elements = type === "map" ? "" : elementInfo(row, type);
   const locations = type === "monster" ? monsterLocations(row) : "";
+  const bagContents = type === "item" ? itemBagContents(row) : "";
   const drops = type === "map" ? mapMembers(row) : type === "monster" ? monsterDrops(row) : itemDrops(row);
   els.detail.innerHTML = `<div class="detail">
     <div class="detailHead">
@@ -306,6 +322,7 @@ function openDetail(row) {
     <div class="statgrid">${stats || `<div class="stat"><span>ไม่มีค่าสเตตัสใน cache</span></div>`}</div>
     ${elements}
     ${locations ? `<h2 class="mt-5 text-lg">สถานที่เกิด</h2><div class="locationList">${locations}</div>` : ""}
+    ${bagContents ? `<h2 class="mt-5 text-lg">ของในถุง / อัตราได้รับ</h2><div class="dropList bagContentList">${bagContents}</div>` : ""}
     ${drops ? `<h2 class="mt-5 text-lg">${dropHeading(type)}</h2><div class="dropList">${drops}</div>` : ""}
   </div>`;
   els.dialog.showModal();
@@ -386,6 +403,9 @@ function itemStats(row) {
     parts.push(`<div class="stat"><span>${escapeHtml(statMap[key] || key)}</span><b>${escapeHtml(String(value))}</b></div>`);
   }
   if (row.job?.length) parts.push(`<div class="stat"><span>อาชีพ</span><b>${row.job.map((j) => jobMap[j] || j).join(", ")}</b></div>`);
+  if (String(row.real_id || row.name_id || "") === ZODIAC_BAG_ID) {
+    parts.push(`<div class="stat"><span>ของในถุง</span><b>${ZODIAC_BAG_CONTENTS.length.toLocaleString()} รายการ</b></div>`);
+  }
   parts.push(`<div class="stat"><span>ราคา</span><b><span class="accent">ซื้อ ${Number(row.cost || 0).toLocaleString()}</span> / <span class="green">ขาย ${Number(row.sell || 0).toLocaleString()}</span></b></div>`);
   return parts.join("");
 }
@@ -538,6 +558,28 @@ function mapMembers(row) {
   return [...bossRows, ...monsterRows].slice(0, 160).join("");
 }
 
+function itemBagContents(row) {
+  const real = String(row.real_id || row.name_id || "");
+  if (real !== ZODIAC_BAG_ID) return "";
+  return ZODIAC_BAG_CONTENTS.map((entry) => {
+    const item = state.items.find((candidate) => String(candidate.real_id || candidate.name_id || "") === entry.real_id) || entry;
+    const name = item.name_th || item.name || entry.name;
+    const icon = item.icon || entry.real_id;
+    return `<div class="origDropRow" data-jump-view="items" data-jump-search="${escapeHtml(entry.real_id)}">
+      <div class="origDropMain">
+        <div class="origDropIcon"><img src="${escapeHtml(itemIconUrl(icon))}" alt="" loading="lazy" onerror="fallbackItemImage(this,'${escapeHtml(pad(icon))}')"></div>
+        <div class="origDropText">
+          <div class="origDropName" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+          <div class="origDropId">ID: ${escapeHtml(entry.real_id)}</div>
+        </div>
+        <div class="origDropRate">
+          <div class="${percentClass(entry.percent)}">Rate: ${escapeHtml(entry.percent)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
 function itemDrops(row) {
   const code = row.code;
   const real = String(row.real_id || row.name_id || "");
@@ -604,7 +646,7 @@ function escapeHtml(value) {
 async function loadData() {
   const [items, monsters, maps] = await Promise.all([
     fetch("data/items.json").then((r) => r.json()),
-    fetch("data/monsters.json?v=20260923-lucky-filter").then((r) => r.json()),
+    fetch("data/monsters.json?v=20260923-zodiac-bag").then((r) => r.json()),
     fetch("data/maps.json").then((r) => r.json()),
   ]);
   const fixedMaps = fixMojibake(maps);
