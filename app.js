@@ -24,6 +24,7 @@ const els = {
   search: $("searchInput"),
   cat: $("categoryFilter"),
   job: $("jobFilter"),
+  luckyBag: $("luckyBagFilter"),
   sort: $("sortFilter"),
   min: $("minLevel"),
   max: $("maxLevel"),
@@ -143,6 +144,7 @@ function setActiveView(view) {
   const itemFilters = view === "items";
   els.cat.disabled = !itemFilters;
   els.job.disabled = !itemFilters;
+  els.luckyBag.disabled = view === "maps";
   applyFilters();
 }
 
@@ -174,6 +176,7 @@ function applyFilters() {
     const level = Number(row.level || 0);
     if (q && !textOf(row).includes(q)) return false;
     if (row.kind !== "map" && (level < min || level > max)) return false;
+    if (state.view !== "maps" && els.luckyBag.value && !matchesLuckyBagFilter(row)) return false;
     if (state.view === "items") {
       if (els.cat.value && row.cat_key !== els.cat.value) return false;
       if (els.job.value && !(row.job || []).includes(els.job.value)) return false;
@@ -244,7 +247,7 @@ function cardHtml(row, index) {
     ? [`รวม ${row.total.toLocaleString()} ตัว`, row.bosses.length ? "มี Boss" : "Monster"]
     : type === "monster"
     ? [`EXP ${row.exp || "-"}`, `${(row.drops || []).length} drops`]
-    : [`Lv.${row.level || "-"}`, `ซื้อ ${Number(row.cost || 0).toLocaleString()}`, `ขาย ${Number(row.sell || 0).toLocaleString()}`, ...itemLuckyBagPills(row)];
+    : [`Lv.${row.level || "-"}`, `ซื้อ ${Number(row.cost || 0).toLocaleString()}`, `ขาย ${Number(row.sell || 0).toLocaleString()}`];
   return `<article class="card" data-index="${index}">
     <button class="save ${state.saved[key] ? "saved" : ""}" data-save="${index}" type="button" title="บันทึก"><i data-lucide="bookmark"></i></button>
     ${type === "map" ? `<div class="thumb mapThumb"><i data-lucide="map"></i></div>` : `<div class="thumb ${type}Thumb"><img src="${imageUrl(row, type)}" alt="" loading="lazy" ${imageEvents(row, type)}></div>`}
@@ -265,7 +268,6 @@ function monsterCardHtml(row, index) {
   const def = row.defense || "-";
   const drops = (row.drops || []).length;
   const locations = (row.locations || []).length;
-  const luckyBag = monsterLuckyBagSummary(row);
   return `<article class="card monsterCard" data-index="${index}">
     <button class="save ${state.saved[key] ? "saved" : ""}" data-save="${index}" type="button" title="บันทึก"><i data-lucide="bookmark"></i></button>
     <div class="thumb monsterThumb"><img src="${imageUrl(row, "monster")}" alt="" loading="lazy" ${imageEvents(row, "monster")}></div>
@@ -275,7 +277,6 @@ function monsterCardHtml(row, index) {
       <div><span>HP</span><b>${hp}</b></div>
       <div><span>ATK</span><b>${escapeHtml(atk)}</b></div>
       <div><span>DEF</span><b>${escapeHtml(def)}</b></div>
-      <div><span>ถุงโชคดี</span><b>${escapeHtml(luckyBag.card)}</b></div>
     </div>
     <div class="monsterFoot"><i data-lucide="map-pin"></i> เกิด ${locations.toLocaleString()} ที่ <span>•</span> <i data-lucide="gift"></i> ดรอป ${drops.toLocaleString()} รายการ</div>
   </article>`;
@@ -370,8 +371,8 @@ function headerPills(row, type) {
   return type === "map"
     ? [`Monster ${row.monsters.length.toLocaleString()}`, `Boss ${row.bosses.length.toLocaleString()}`]
     : type === "monster"
-    ? [`Lv.${row.level || "-"}`, `HP ${row.hp || "-"}`, `DEF ${row.defense || "-"}`, `ถุงโชคดี ${monsterLuckyBagSummary(row).card}`]
-    : [`#${row.real_id || row.name_id || "-"}`, row.cat_name || "-", row.sub_name || "-", ...itemLuckyBagPills(row)];
+    ? [`Lv.${row.level || "-"}`, `HP ${row.hp || "-"}`, `DEF ${row.defense || "-"}`]
+    : [`#${row.real_id || row.name_id || "-"}`, row.cat_name || "-", row.sub_name || "-"];
 }
 
 function typeOf(row) {
@@ -385,20 +386,14 @@ function itemStats(row) {
     parts.push(`<div class="stat"><span>${escapeHtml(statMap[key] || key)}</span><b>${escapeHtml(String(value))}</b></div>`);
   }
   if (row.job?.length) parts.push(`<div class="stat"><span>อาชีพ</span><b>${row.job.map((j) => jobMap[j] || j).join(", ")}</b></div>`);
-  if (isLuckyBagItem(row)) {
-    const sourceCount = itemDropSourceCount(row);
-    parts.push(`<div class="stat"><span>ถุงโชคดี</span><b>${sourceCount ? `${sourceCount.toLocaleString()} ตัวดรอป` : "ไม่มีข้อมูลดรอป"}</b></div>`);
-  }
   parts.push(`<div class="stat"><span>ราคา</span><b><span class="accent">ซื้อ ${Number(row.cost || 0).toLocaleString()}</span> / <span class="green">ขาย ${Number(row.sell || 0).toLocaleString()}</span></b></div>`);
   return parts.join("");
 }
 
 function monsterStats(row) {
-  const luckyBag = monsterLuckyBagSummary(row);
   return [
     ["Level", row.level], ["HP", row.hp], ["MP", row.mp], ["Damage", row.damage],
     ["Defense", row.defense], ["Attack Speed", row.attack_speed], ["EXP", row.exp],
-    ["ถุงโชคดี", luckyBag.detail],
     ["STR", row.stats?.STR], ["INT", row.stats?.INT], ["CON", row.stats?.CON], ["DEX", row.stats?.DEX], ["MIND", row.stats?.MIND],
   ].filter(([, v]) => v !== undefined && v !== "").map(([k, v]) => `<div class="stat"><span>${k}</span><b>${escapeHtml(String(v))}</b></div>`).join("");
 }
@@ -596,28 +591,10 @@ function luckyBagDrops(row) {
   return (row.drops || []).filter((drop) => isLuckyBagName(drop.name));
 }
 
-function monsterLuckyBagSummary(row) {
-  const drops = luckyBagDrops(row);
-  if (!drops.length) return { card: "-", detail: "-" };
-  const sorted = [...drops].sort((a, b) => Number(b.rate || 0) - Number(a.rate || 0));
-  const best = sorted[0];
-  const percent = cleanPercent(best.percent) || String(best.rate || "-");
-  const card = drops.length > 1 ? `${percent} (${drops.length})` : percent;
-  return { card, detail: `${best.name || LUCKY_BAG_TEXT} ${percent}${drops.length > 1 ? ` +${drops.length - 1}` : ""}` };
-}
-
-function itemDropSourceCount(row) {
-  const code = row.code;
-  const real = String(row.real_id || row.name_id || "");
-  return state.monsters.filter((mob) => (mob.drops || []).some((drop) =>
-    drop.item_id === code || drop.code === code || String(drop.real_id || "") === real || drop.name === row.name_th
-  )).length;
-}
-
-function itemLuckyBagPills(row) {
-  if (!isLuckyBagItem(row)) return [];
-  const sourceCount = itemDropSourceCount(row);
-  return [sourceCount ? `ถุงโชคดี • ${sourceCount.toLocaleString()} ตัวดรอป` : "ถุงโชคดี"];
+function matchesLuckyBagFilter(row) {
+  if (!els.luckyBag.value) return true;
+  if (row.kind === "map") return false;
+  return state.monsters.includes(row) ? luckyBagDrops(row).length > 0 : isLuckyBagItem(row);
 }
 
 function escapeHtml(value) {
@@ -627,7 +604,7 @@ function escapeHtml(value) {
 async function loadData() {
   const [items, monsters, maps] = await Promise.all([
     fetch("data/items.json").then((r) => r.json()),
-    fetch("data/monsters.json?v=20260923-lucky-bag").then((r) => r.json()),
+    fetch("data/monsters.json?v=20260923-lucky-filter").then((r) => r.json()),
     fetch("data/maps.json").then((r) => r.json()),
   ]);
   const fixedMaps = fixMojibake(maps);
@@ -780,7 +757,7 @@ els.detail.addEventListener("click", (event) => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
-[els.search, els.cat, els.job, els.sort, els.min, els.max].forEach((el) => el.addEventListener("input", applyFilters));
+[els.search, els.cat, els.job, els.luckyBag, els.sort, els.min, els.max].forEach((el) => el.addEventListener("input", applyFilters));
 $("filterToggle").addEventListener("click", () => {
   const expanded = $("filterToggle").getAttribute("aria-expanded") !== "true";
   $("filterToggle").setAttribute("aria-expanded", String(expanded));

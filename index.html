@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260923-lucky-bag">
+  <link rel="stylesheet" href="styles.css?v=20260923-lucky-filter">
 </head>
 <body>
   <header class="topbar">
@@ -33,6 +33,10 @@
       <div id="filterFields" class="filterFields">
       <select id="categoryFilter" title="หมวดหมู่"></select>
       <select id="jobFilter" title="อาชีพ"></select>
+      <select id="luckyBagFilter" title="ถุงโชคดี">
+        <option value="">ถุงโชคดีทั้งหมด</option>
+        <option value="lucky_bag">เฉพาะถุงโชคดี</option>
+      </select>
       <select id="sortFilter" title="เรียงข้อมูล">
         <option value="default">เรียงปกติ</option>
         <option value="level_desc">Lv. สูง</option>
@@ -62,6 +66,6 @@
     <div id="detailContent"></div>
   </dialog>
 
-  <script src="app.js?v=20260923-lucky-bag"></script>
+  <script src="app.js?v=20260923-lucky-filter"></script>
 </body>
 </html>
