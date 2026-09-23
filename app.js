@@ -624,7 +624,7 @@ function escapeHtml(value) {
 async function loadData() {
   const [items, monsters, maps] = await Promise.all([
     fetch("data/items.json").then((r) => r.json()),
-    fetch("data/monsters.json?v=20260923-remove-lucky-filter").then((r) => r.json()),
+    fetch("data/monsters.json?v=20260923-boss-hp").then((r) => r.json()),
     fetch("data/maps.json").then((r) => r.json()),
   ]);
   const fixedMaps = fixMojibake(maps);
