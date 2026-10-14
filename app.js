@@ -17,6 +17,24 @@ const ZODIAC_BAG_CONTENTS = [
   { real_id: "4450", name: "ยันต์วิญญาณ12นักษัตรกุน", percent: "20.00%" },
 ];
 
+const SALARY_BAG_ID = "5593";
+const SALARY_BAG_CONTENTS = [
+  ["9825", "4.00%"], ["9826", "4.00%"], ["9827", "4.00%"], ["9976", "4.00%"],
+  ["9817", "4.00%"], ["9818", "4.00%"], ["5790", "4.00%"], ["5785", "4.00%"],
+  ["7585", "3.00%"], ["7586", "3.00%"], ["7519", "3.00%"], ["7559", "3.00%"],
+  ["5411", "2.00%"], ["5569", "2.00%"], ["5416", "2.00%"], ["5410", "2.00%"],
+  ["3209", "2.00%"], ["3215", "2.00%"], ["3006", "2.00%"], ["3007", "2.00%"],
+  ["4055", "2.00%"], ["4076", "2.00%"],
+  ["3815", "1.00%"], ["3816", "1.00%"], ["3817", "1.00%"], ["3818", "1.00%"],
+  ["3425", "0.25%"], ["3426", "0.25%"], ["3427", "0.25%"], ["3428", "0.25%"],
+  ["4022", "0.20%"], ["4023", "0.20%"], ["4024", "0.20%"], ["4025", "0.20%"],
+  ["5192", "0.20%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
+const BAG_CONTENTS = {
+  [ZODIAC_BAG_ID]: ZODIAC_BAG_CONTENTS,
+  [SALARY_BAG_ID]: SALARY_BAG_CONTENTS,
+};
+
 const state = {
   view: "items",
   mode: localStorage.getItem("3kdb_mode") || "grid",
@@ -399,8 +417,12 @@ function itemStats(row) {
     parts.push(`<div class="stat"><span>${escapeHtml(statMap[key] || key)}</span><b>${escapeHtml(String(value))}</b></div>`);
   }
   if (row.job?.length) parts.push(`<div class="stat"><span>อาชีพ</span><b>${row.job.map((j) => jobMap[j] || j).join(", ")}</b></div>`);
-  if (String(row.real_id || row.name_id || "") === ZODIAC_BAG_ID) {
-    parts.push(`<div class="stat"><span>ไอเทมดรอปในถุง</span><b>${ZODIAC_BAG_CONTENTS.length.toLocaleString()} รายการ</b></div>`);
+  const real = String(row.real_id || row.name_id || "");
+  if (BAG_CONTENTS[real]) {
+    parts.push(`<div class="stat"><span>ไอเทมดรอปในถุง</span><b>${BAG_CONTENTS[real].length.toLocaleString()} รายการ</b></div>`);
+  }
+  if (real === SALARY_BAG_ID) {
+    parts.push(`<div class="stat"><span>เงินในกล่อง</span><b>35,000 - 55,000</b></div>`);
   }
   parts.push(`<div class="stat"><span>ราคา</span><b><span class="accent">ซื้อ ${Number(row.cost || 0).toLocaleString()}</span> / <span class="green">ขาย ${Number(row.sell || 0).toLocaleString()}</span></b></div>`);
   return parts.join("");
@@ -556,8 +578,9 @@ function mapMembers(row) {
 
 function itemBagContents(row) {
   const real = String(row.real_id || row.name_id || "");
-  if (real !== ZODIAC_BAG_ID) return "";
-  return ZODIAC_BAG_CONTENTS.map((entry) => {
+  const contents = BAG_CONTENTS[real];
+  if (!contents) return "";
+  const rows = contents.map((entry) => {
     const item = state.items.find((candidate) => String(candidate.real_id || candidate.name_id || "") === entry.real_id) || entry;
     const name = item.name_th || item.name || entry.name;
     const icon = item.icon || entry.real_id;
@@ -574,6 +597,9 @@ function itemBagContents(row) {
       </div>
     </div>`;
   }).join("");
+  return rows + (real === SALARY_BAG_ID
+    ? `<div class="origDropRow"><div class="origDropMain"><div class="origDropText"><div class="origDropName">Nothing</div></div><div class="origDropRate"><div class="${percentClass("30.00%")}">โอกาสได้รับ 30.00%</div></div></div></div>`
+    : "");
 }
 
 function itemDrops(row) {
