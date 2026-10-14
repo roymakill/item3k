@@ -18,6 +18,7 @@ const ZODIAC_BAG_CONTENTS = [
 ];
 
 const SALARY_BAG_ID = "5593";
+const SALARY_BAG_4_ID = "5594";
 const SALARY_BAG_CONTENTS = [
   ["9825", "4.00%"], ["9826", "4.00%"], ["9827", "4.00%"], ["9976", "4.00%"],
   ["9817", "4.00%"], ["9818", "4.00%"], ["5790", "4.00%"], ["5785", "4.00%"],
@@ -30,9 +31,25 @@ const SALARY_BAG_CONTENTS = [
   ["4022", "0.20%"], ["4023", "0.20%"], ["4024", "0.20%"], ["4025", "0.20%"],
   ["5192", "0.20%"],
 ].map(([real_id, percent]) => ({ real_id, percent }));
+const SALARY_BAG_4_CONTENTS = [
+  ["9825", "4.00%"], ["9826", "4.00%"], ["9827", "4.00%"], ["9976", "4.00%"],
+  ["9817", "4.00%"], ["9818", "4.00%"], ["5790", "4.00%"], ["5785", "4.00%"],
+  ["7585", "3.00%"], ["7586", "3.00%"], ["7519", "3.00%"], ["7518", "3.00%"],
+  ["5411", "2.00%"], ["5569", "2.00%"], ["5416", "2.00%"], ["5410", "2.00%"],
+  ["3209", "2.00%"], ["3215", "2.00%"], ["3006", "2.00%"], ["3007", "2.00%"],
+  ["4055", "2.00%"], ["4076", "2.00%"],
+  ["3815", "1.00%"], ["3816", "1.00%"], ["3817", "1.00%"], ["3818", "1.00%"],
+  ["4046", "0.25%"], ["4047", "0.25%"], ["4029", "0.25%"], ["4070", "0.25%"],
+  ["4071", "0.25%"], ["4072", "0.25%"], ["4073", "0.25%"], ["5192", "0.25%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
 const BAG_CONTENTS = {
   [ZODIAC_BAG_ID]: ZODIAC_BAG_CONTENTS,
   [SALARY_BAG_ID]: SALARY_BAG_CONTENTS,
+  [SALARY_BAG_4_ID]: SALARY_BAG_4_CONTENTS,
+};
+const BAG_GOLD = {
+  [SALARY_BAG_ID]: "35,000 - 55,000",
+  [SALARY_BAG_4_ID]: "30,000 - 50,000",
 };
 
 const state = {
@@ -421,8 +438,8 @@ function itemStats(row) {
   if (BAG_CONTENTS[real]) {
     parts.push(`<div class="stat"><span>ไอเทมดรอปในถุง</span><b>${BAG_CONTENTS[real].length.toLocaleString()} รายการ</b></div>`);
   }
-  if (real === SALARY_BAG_ID) {
-    parts.push(`<div class="stat"><span>เงินในกล่อง</span><b>35,000 - 55,000</b></div>`);
+  if (BAG_GOLD[real]) {
+    parts.push(`<div class="stat"><span>เงินในกล่อง</span><b>${BAG_GOLD[real]}</b></div>`);
   }
   parts.push(`<div class="stat"><span>ราคา</span><b><span class="accent">ซื้อ ${Number(row.cost || 0).toLocaleString()}</span> / <span class="green">ขาย ${Number(row.sell || 0).toLocaleString()}</span></b></div>`);
   return parts.join("");
@@ -597,7 +614,7 @@ function itemBagContents(row) {
       </div>
     </div>`;
   }).join("");
-  return rows + (real === SALARY_BAG_ID
+  return rows + (real === SALARY_BAG_ID || real === SALARY_BAG_4_ID
     ? `<div class="origDropRow"><div class="origDropMain"><div class="origDropText"><div class="origDropName">Nothing</div></div><div class="origDropRate"><div class="${percentClass("30.00%")}">โอกาสได้รับ 30.00%</div></div></div></div>`
     : "");
 }
