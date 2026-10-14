@@ -19,6 +19,34 @@ const ZODIAC_BAG_CONTENTS = [
 
 const SALARY_BAG_ID = "5593";
 const SALARY_BAG_4_ID = "5594";
+const SALARY_BAG_1_ID = "5591";
+const SALARY_BAG_2_ID = "5592";
+const SALARY_BAG_1_CONTENTS = [
+  ["9825", "4.00%"], ["9826", "4.00%"], ["9827", "4.00%"], ["9976", "4.00%"],
+  ["9817", "4.00%"], ["9818", "4.00%"], ["5790", "4.00%"], ["5785", "4.00%"],
+  ["7585", "3.00%"], ["7586", "3.00%"], ["10863", "3.00%"],
+  ["5411", "2.00%"], ["5569", "2.00%"], ["5416", "2.00%"], ["5410", "2.00%"],
+  ["4055", "2.00%"], ["4076", "2.00%"], ["3215", "2.00%"], ["3006", "2.00%"], ["3007", "2.00%"],
+  ["3819", "0.50%"], ["3820", "0.50%"], ["3821", "0.50%"], ["3822", "0.50%"],
+  ["3823", "0.50%"], ["3824", "0.50%"], ["3825", "0.50%"], ["3826", "0.50%"],
+  ["2596", "0.50%"], ["2597", "0.50%"], ["2780", "0.50%"], ["2781", "0.50%"],
+  ["2873", "0.50%"], ["2874", "0.50%"], ["3670", "0.50%"], ["3671", "0.50%"],
+  ["3676", "0.50%"], ["9548", "0.50%"], ["9549", "0.50%"], ["9640", "0.50%"],
+  ["3666", "0.50%"], ["3667", "0.50%"],
+  ["3668", "0.30%"], ["3722", "0.30%"],
+  ["9609", "0.20%"], ["9641", "0.20%"], ["5192", "0.20%"], ["9559", "0.10%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
+const SALARY_BAG_2_CONTENTS = [
+  ["9825", "4.00%"], ["9826", "4.00%"], ["9827", "4.00%"], ["9976", "4.00%"],
+  ["9817", "4.00%"], ["9818", "4.00%"], ["5790", "4.00%"], ["5785", "4.00%"],
+  ["7585", "3.00%"], ["7586", "3.00%"], ["7559", "3.00%"], ["10863", "3.00%"],
+  ["5411", "2.00%"], ["5569", "2.00%"], ["5416", "2.00%"], ["5410", "2.00%"],
+  ["4055", "2.00%"], ["4076", "2.00%"], ["3215", "2.00%"], ["3006", "2.00%"], ["3007", "2.00%"],
+  ["3815", "1.00%"], ["3816", "1.00%"], ["3817", "1.00%"], ["3818", "1.00%"],
+  ["3425", "0.40%"], ["3426", "0.40%"], ["3427", "0.40%"], ["3428", "0.40%"],
+  ["3819", "0.40%"], ["3820", "0.40%"], ["3821", "0.40%"],
+  ["3822", "0.30%"], ["4063", "0.30%"], ["4064", "0.30%"], ["5192", "0.30%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
 const SALARY_BAG_CONTENTS = [
   ["9825", "4.00%"], ["9826", "4.00%"], ["9827", "4.00%"], ["9976", "4.00%"],
   ["9817", "4.00%"], ["9818", "4.00%"], ["5790", "4.00%"], ["5785", "4.00%"],
@@ -43,13 +71,23 @@ const SALARY_BAG_4_CONTENTS = [
   ["4071", "0.25%"], ["4072", "0.25%"], ["4073", "0.25%"], ["5192", "0.25%"],
 ].map(([real_id, percent]) => ({ real_id, percent }));
 const BAG_CONTENTS = {
+  [SALARY_BAG_1_ID]: SALARY_BAG_1_CONTENTS,
+  [SALARY_BAG_2_ID]: SALARY_BAG_2_CONTENTS,
   [ZODIAC_BAG_ID]: ZODIAC_BAG_CONTENTS,
   [SALARY_BAG_ID]: SALARY_BAG_CONTENTS,
   [SALARY_BAG_4_ID]: SALARY_BAG_4_CONTENTS,
 };
 const BAG_GOLD = {
+  [SALARY_BAG_1_ID]: "55,000 - 65,000",
+  [SALARY_BAG_2_ID]: "45,000 - 60,000",
   [SALARY_BAG_ID]: "35,000 - 55,000",
   [SALARY_BAG_4_ID]: "30,000 - 50,000",
+};
+const BAG_EMPTY_CHANCE = {
+  [SALARY_BAG_1_ID]: "28.70%",
+  [SALARY_BAG_2_ID]: "30.00%",
+  [SALARY_BAG_ID]: "30.00%",
+  [SALARY_BAG_4_ID]: "30.00%",
 };
 
 const state = {
@@ -614,8 +652,9 @@ function itemBagContents(row) {
       </div>
     </div>`;
   }).join("");
-  return rows + (real === SALARY_BAG_ID || real === SALARY_BAG_4_ID
-    ? `<div class="origDropRow"><div class="origDropMain"><div class="origDropText"><div class="origDropName">Nothing</div></div><div class="origDropRate"><div class="${percentClass("30.00%")}">โอกาสได้รับ 30.00%</div></div></div></div>`
+  const emptyChance = BAG_EMPTY_CHANCE[real];
+  return rows + (emptyChance
+    ? `<div class="origDropRow"><div class="origDropMain"><div class="origDropText"><div class="origDropName">Nothing</div></div><div class="origDropRate"><div class="${percentClass(emptyChance)}">โอกาสได้รับ ${escapeHtml(emptyChance)}</div></div></div></div>`
     : "");
 }
 
