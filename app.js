@@ -145,6 +145,16 @@ const BAG_EMPTY_CHANCE = {
   [SALARY_BAG_7_ID]: "20.00%",
   [SALARY_BAG_8_ID]: "20.00%",
 };
+const SALARY_BAG_DROP_IDS = {
+  [SALARY_BAG_1_ID]: "2016",
+  [SALARY_BAG_2_ID]: "2017",
+  [SALARY_BAG_ID]: "2018",
+  [SALARY_BAG_4_ID]: "2019",
+  [SALARY_BAG_5_ID]: "2020",
+  [SALARY_BAG_6_ID]: "2021",
+  [SALARY_BAG_7_ID]: "2022",
+  [SALARY_BAG_8_ID]: "2023",
+};
 
 const state = {
   view: "items",
@@ -426,7 +436,7 @@ function monsterCardHtml(row, index) {
 
 function openDetail(row) {
   const type = typeOf(row);
-  const isCodex = type === "item" && String(row.real_id) === SALARY_BAG_8_ID;
+  const isCodex = type === "item" && Boolean(SALARY_BAG_DROP_IDS[String(row.real_id)]);
   els.dialog.classList.toggle("salaryCodexDialog", isCodex);
   els.dialog.scrollTop = 0;
   if (isCodex) {
@@ -467,8 +477,8 @@ function openDetail(row) {
   lucide.createIcons();
 }
 
-function codexEntries() {
-  return SALARY_BAG_8_CONTENTS.map((entry) => ({
+function codexEntries(row = codex.row) {
+  return BAG_CONTENTS[String(row.real_id)].map((entry) => ({
     ...entry,
     item: state.items.find((item) => String(item.real_id) === entry.real_id),
   })).filter((entry) => entry.item);
@@ -479,27 +489,31 @@ function codexItemImage(item, className = "") {
 }
 
 function salaryCodexDetail(row) {
-  const rare = codexEntries().sort((a, b) => parseFloat(a.percent) - parseFloat(b.percent)
+  const real = String(row.real_id);
+  const contents = BAG_CONTENTS[real];
+  const total = (contents.reduce((sum, entry) => sum + Math.round(parseFloat(entry.percent) * 100), 0)
+    + Math.round(parseFloat(BAG_EMPTY_CHANCE[real]) * 100)) / 100;
+  const rare = codexEntries(row).sort((a, b) => parseFloat(a.percent) - parseFloat(b.percent)
     || Number(b.item.cat_key === "CAT_MOUNT") - Number(a.item.cat_key === "CAT_MOUNT"))
     .slice(0, 3);
   const saved = Boolean(state.saved[saveKey(row)]);
   return `<article class="salaryCodex" aria-labelledby="codexTitle">
     <div class="codexMasthead"><span>3K <b>DATA DB</b></span><span class="codexMastheadLabel">คลังไอเทม</span></div>
-    <div class="codexBreadcrumb"><i data-lucide="box"></i><span>ไอเทม</span><span>/</span><span>ถุงโชคดี</span><span>/</span><span>เบี้ยหวัดชั้น8</span></div>
+    <div class="codexBreadcrumb"><i data-lucide="box"></i><span>ไอเทม</span><span>/</span><span>ถุงโชคดี</span><span>/</span><span>${escapeHtml(row.name_th)}</span></div>
     <header class="codexHero">
       <div class="codexPortrait">${codexItemImage(row)}</div>
       <div class="codexIdentity">
         <div class="codexTitleLine"><h2 id="codexTitle">${escapeHtml(row.name_th)}</h2><button type="button" class="codexIconButton" id="codexSave" data-codex-save aria-pressed="${saved}" title="${saved ? "นำออกจากบันทึก" : "บันทึกไอเทม"}" aria-label="${saved ? "นำออกจากบันทึก" : "บันทึกไอเทม"}"><i data-lucide="${saved ? "bookmark-check" : "bookmark"}"></i></button></div>
         <div class="codexSubtitle">ถุงโชคดี <span>|</span> ID ${escapeHtml(row.real_id)}</div>
         <dl class="codexMetrics">
-          <div><i data-lucide="coins"></i><dt>เงินในกล่อง</dt><dd>${BAG_GOLD[SALARY_BAG_8_ID]}</dd></div>
-          <div><i data-lucide="package-open"></i><dt>ไอเทม</dt><dd>${SALARY_BAG_8_CONTENTS.length} รายการ</dd></div>
-          <div><i data-lucide="dices"></i><dt>Nothing</dt><dd>${BAG_EMPTY_CHANCE[SALARY_BAG_8_ID]}</dd></div>
+          <div><i data-lucide="coins"></i><dt>เงินในกล่อง</dt><dd>${BAG_GOLD[real]}</dd></div>
+          <div><i data-lucide="package-open"></i><dt>ไอเทม</dt><dd>${contents.length} รายการ</dd></div>
+          <div><i data-lucide="dices"></i><dt>Nothing</dt><dd>${BAG_EMPTY_CHANCE[real]}</dd></div>
         </dl>
       </div>
     </header>
     <div class="codexTabs" role="tablist" aria-label="รายละเอียดกล่อง">
-      <button type="button" id="codexContentsTab" role="tab" aria-controls="codexContentsPanel" aria-selected="true" data-codex-tab="contents">ไอเทมในกล่อง <span>21</span></button>
+      <button type="button" id="codexContentsTab" role="tab" aria-controls="codexContentsPanel" aria-selected="true" data-codex-tab="contents">ไอเทมในกล่อง <span>${contents.length}</span></button>
       <button type="button" id="codexSourcesTab" role="tab" aria-controls="codexSourcesPanel" aria-selected="false" tabindex="-1" data-codex-tab="sources">แหล่งดรอป</button>
     </div>
     <section id="codexContentsPanel" class="codexLayout" role="tabpanel" aria-labelledby="codexContentsTab">
@@ -511,11 +525,11 @@ function salaryCodexDetail(row) {
         <div id="codexResults"></div>
       </div>
       <aside class="codexRare" aria-labelledby="codexRareTitle"><h3 id="codexRareTitle">ไอเทมอัตราต่ำ</h3>${rare.map(({ item, percent }) => `<button type="button" class="codexRareItem" data-codex-item="${escapeHtml(item.real_id)}">${codexItemImage(item)}<span><b>${escapeHtml(item.name_th)}</b><small>${escapeHtml(item.cat_name)}</small><strong>${percent}</strong></span><i data-lucide="chevron-right"></i></button>`).join("")}
-        <dl class="codexLedger"><div><dt>Nothing</dt><dd>20.00%</dd></div><div><dt>รวมอัตราดรอป</dt><dd>100.00%</dd></div></dl>
+        <dl class="codexLedger"><div><dt>Nothing</dt><dd>${BAG_EMPTY_CHANCE[real]}</dd></div><div><dt>รวมอัตราตามไฟล์</dt><dd>${total.toFixed(2)}%</dd></div></dl>
       </aside>
     </section>
     <section id="codexSourcesPanel" class="codexSources" role="tabpanel" aria-labelledby="codexSourcesTab" hidden><h3>แหล่งดรอป</h3><div class="dropList">${itemDrops(row)}</div></section>
-    <footer class="codexFooter"><span><i data-lucide="scroll-text"></i> DROP ID 2023</span><span>เบี้ยหวัดชั้น8 <span class="codexFooterDot">/</span> #5598</span></footer>
+    <footer class="codexFooter"><span><i data-lucide="scroll-text"></i> DROP ID ${SALARY_BAG_DROP_IDS[real]}</span><span>${escapeHtml(row.name_th)} <span class="codexFooterDot">/</span> #${escapeHtml(real)}</span></footer>
   </article>`;
 }
 
@@ -1016,7 +1030,7 @@ els.detail.addEventListener("click", (event) => {
     const item = state.items.find((item) => String(item.real_id) === itemButton.dataset.codexItem);
     if (item) {
       openDetail(item);
-      els.detail.querySelector(".detail").insertAdjacentHTML("afterbegin", `<button type="button" class="codexBackButton" data-codex-return><i data-lucide="arrow-left"></i>เบี้ยหวัดชั้น8</button>`);
+      els.detail.querySelector(".detail").insertAdjacentHTML("afterbegin", `<button type="button" class="codexBackButton" data-codex-return><i data-lucide="arrow-left"></i>${escapeHtml(codex.row.name_th)}</button>`);
       lucide.createIcons();
     }
     return;
