@@ -21,6 +21,9 @@ const SALARY_BAG_ID = "5593";
 const SALARY_BAG_4_ID = "5594";
 const SALARY_BAG_1_ID = "5591";
 const SALARY_BAG_2_ID = "5592";
+const SALARY_BAG_5_ID = "5595";
+const SALARY_BAG_6_ID = "5596";
+const SALARY_BAG_7_ID = "5597";
 const SALARY_BAG_1_CONTENTS = [
   ["9825", "4.00%"], ["9826", "4.00%"], ["9827", "4.00%"], ["9976", "4.00%"],
   ["9817", "4.00%"], ["9818", "4.00%"], ["5790", "4.00%"], ["5785", "4.00%"],
@@ -70,24 +73,65 @@ const SALARY_BAG_4_CONTENTS = [
   ["4046", "0.25%"], ["4047", "0.25%"], ["4029", "0.25%"], ["4070", "0.25%"],
   ["4071", "0.25%"], ["4072", "0.25%"], ["4073", "0.25%"], ["5192", "0.25%"],
 ].map(([real_id, percent]) => ({ real_id, percent }));
+const SALARY_BAG_5_CONTENTS = [
+  ["9825", "4.00%"], ["9826", "4.00%"], ["9827", "4.00%"], ["9976", "4.00%"],
+  ["9817", "4.00%"], ["9818", "4.00%"], ["5790", "4.00%"], ["5785", "4.00%"],
+  ["7585", "3.00%"], ["7586", "3.00%"], ["7519", "3.00%"], ["7518", "3.00%"],
+  ["3209", "2.50%"], ["3215", "2.50%"], ["3006", "2.50%"], ["3007", "2.50%"],
+  ["3804", "2.00%"], ["3806", "2.00%"], ["3807", "2.00%"], ["3809", "2.00%"],
+  ["4055", "2.00%"], ["4076", "2.00%"],
+  ["3815", "0.70%"], ["3816", "0.70%"], ["3817", "0.70%"], ["3818", "0.70%"],
+  ["4050", "0.25%"], ["4052", "0.25%"], ["4054", "0.25%"], ["4042", "0.25%"],
+  ["5192", "0.20%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
+const SALARY_BAG_6_CONTENTS = [
+  ["5007", "5.00%"], ["5003", "4.00%"], ["5008", "3.00%"], ["5031", "5.00%"],
+  ["5032", "3.50%"], ["5413", "3.00%"], ["5414", "1.00%"], ["5028", "5.00%"],
+  ["7590", "0.10%"], ["7589", "0.10%"], ["7501", "1.00%"], ["7502", "1.00%"],
+  ["5752", "0.50%"], ["5790", "0.50%"], ["5737", "0.50%"],
+  ["2492", "3.00%"], ["2458", "3.00%"], ["2431", "3.00%"],
+  ["3802", "1.00%"], ["4017", "1.00%"], ["4006", "1.00%"], ["4018", "1.00%"],
+  ["3605", "2.00%"], ["2449", "2.00%"], ["2451", "2.00%"], ["2464", "2.00%"],
+  ["2465", "2.00%"], ["2671", "2.00%"], ["2674", "2.00%"], ["2675", "2.00%"],
+  ["2677", "2.00%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
+const SALARY_BAG_7_CONTENTS = [
+  ["5056", "5.00%"], ["5045", "5.00%"], ["5007", "5.00%"], ["5089", "6.00%"],
+  ["5032", "5.00%"], ["5413", "3.00%"], ["5414", "1.00%"],
+  ["7590", "0.10%"], ["7589", "0.10%"], ["7501", "1.00%"], ["7502", "1.00%"],
+  ["5006", "11.00%"], ["5028", "3.00%"], ["5027", "3.00%"],
+  ["5751", "0.50%"], ["5754", "0.50%"],
+  ["442", "3.00%"], ["1001", "3.00%"], ["2428", "3.00%"], ["2473", "3.00%"],
+  ["2819", "3.00%"], ["3802", "1.00%"], ["4016", "1.00%"], ["4005", "3.00%"],
+  ["4006", "1.00%"], ["3613", "3.00%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
 const BAG_CONTENTS = {
   [SALARY_BAG_1_ID]: SALARY_BAG_1_CONTENTS,
   [SALARY_BAG_2_ID]: SALARY_BAG_2_CONTENTS,
   [ZODIAC_BAG_ID]: ZODIAC_BAG_CONTENTS,
   [SALARY_BAG_ID]: SALARY_BAG_CONTENTS,
   [SALARY_BAG_4_ID]: SALARY_BAG_4_CONTENTS,
+  [SALARY_BAG_5_ID]: SALARY_BAG_5_CONTENTS,
+  [SALARY_BAG_6_ID]: SALARY_BAG_6_CONTENTS,
+  [SALARY_BAG_7_ID]: SALARY_BAG_7_CONTENTS,
 };
 const BAG_GOLD = {
   [SALARY_BAG_1_ID]: "55,000 - 65,000",
   [SALARY_BAG_2_ID]: "45,000 - 60,000",
   [SALARY_BAG_ID]: "35,000 - 55,000",
   [SALARY_BAG_4_ID]: "30,000 - 50,000",
+  [SALARY_BAG_5_ID]: "25,000 - 45,000",
+  [SALARY_BAG_6_ID]: "20,000 - 40,000",
+  [SALARY_BAG_7_ID]: "15,000 - 35,000",
 };
 const BAG_EMPTY_CHANCE = {
   [SALARY_BAG_1_ID]: "28.70%",
   [SALARY_BAG_2_ID]: "30.00%",
   [SALARY_BAG_ID]: "30.00%",
   [SALARY_BAG_4_ID]: "30.00%",
+  [SALARY_BAG_5_ID]: "30.00%",
+  [SALARY_BAG_6_ID]: "30.00%",
+  [SALARY_BAG_7_ID]: "20.00%",
 };
 
 const state = {
@@ -478,6 +522,13 @@ function itemStats(row) {
   }
   if (BAG_GOLD[real]) {
     parts.push(`<div class="stat"><span>เงินในกล่อง</span><b>${BAG_GOLD[real]}</b></div>`);
+  }
+  if (BAG_EMPTY_CHANCE[real]) {
+    const total = BAG_CONTENTS[real].reduce((sum, entry) => sum + Math.round(parseFloat(entry.percent) * 100), 0)
+      + Math.round(parseFloat(BAG_EMPTY_CHANCE[real]) * 100);
+    if (total !== 10000) {
+      parts.push(`<div class="stat"><span>รวมอัตราดรอปตามไฟล์</span><b>${(total / 100).toFixed(2)}%</b></div>`);
+    }
   }
   parts.push(`<div class="stat"><span>ราคา</span><b><span class="accent">ซื้อ ${Number(row.cost || 0).toLocaleString()}</span> / <span class="green">ขาย ${Number(row.sell || 0).toLocaleString()}</span></b></div>`);
   return parts.join("");
