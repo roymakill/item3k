@@ -799,6 +799,195 @@ dialog::backdrop { background: rgba(0,0,0,.7); }
 .cyan { color: var(--cyan); }
 .green { color: var(--green); }
 
+/* The grade 8 codex is isolated from the other item and monster dialogs. */
+dialog.salaryCodexDialog {
+  width: min(1180px, calc(100vw - 32px));
+  max-width: 1180px;
+  max-height: calc(100dvh - 32px);
+  color: #eceeea;
+  background: #121514;
+  border: 1px solid #7e704b;
+  border-radius: 4px;
+  box-shadow: 0 24px 100px #0009;
+  scrollbar-color: #6f664d #161917;
+}
+.salaryCodexDialog::backdrop { background: #050706d9; backdrop-filter: blur(5px); }
+.salaryCodexDialog > .close {
+  position: sticky;
+  top: 10px;
+  right: auto;
+  float: right;
+  margin: 10px 12px -50px 0;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: #dbd1b7;
+  background: transparent;
+  border: 1px solid #6b6148;
+  border-radius: 2px;
+}
+.salaryCodex { --codex-gold: #d6bc7a; --codex-muted: #a4aaa5; --codex-line: #343b34; letter-spacing: 0; }
+.salaryCodex *, .salaryCodex *::before, .salaryCodex *::after { box-sizing: border-box; }
+.salaryCodex button, .salaryCodex input, .salaryCodex select { font: inherit; letter-spacing: 0; }
+.salaryCodex [hidden] { display: none !important; }
+.salaryCodex button { color: inherit; }
+.salaryCodex button:focus-visible, .salaryCodex input:focus-visible, .salaryCodex select:focus-visible { outline: 2px solid #d6bc7a; outline-offset: 3px; }
+.codexMasthead { height: 64px; padding: 0 76px 0 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #7e704b; }
+.codexMasthead > span:first-child { font-family: Georgia, serif; color: var(--codex-gold); font-size: 25px; white-space: nowrap; }
+.codexMasthead b { font-weight: 400; }
+.codexMastheadLabel { font-size: 12px; color: var(--codex-muted); }
+.codexBreadcrumb { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 20px 28px 0; font-size: 12px; color: var(--codex-muted); }
+.codexBreadcrumb svg { width: 15px; height: 15px; color: var(--codex-gold); }
+.codexBreadcrumb > span:last-child { color: #e2ddcf; }
+.codexHero { display: grid; grid-template-columns: 180px minmax(0, 1fr); align-items: center; gap: 36px; padding: 26px 28px 30px; }
+.codexPortrait { display: grid; place-items: center; width: 180px; height: 180px; background: #0c100e; border: 1px solid #61573c; position: relative; }
+.codexPortrait::before, .codexPortrait::after { content: ""; position: absolute; width: 18px; height: 18px; pointer-events: none; border-color: var(--codex-gold); border-style: solid; }
+.codexPortrait::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+.codexPortrait::after { right: -2px; bottom: -2px; border-width: 0 2px 2px 0; }
+.codexPortrait img { width: 120px; height: 120px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 8px 12px #0008); }
+.codexIdentity { min-width: 0; }
+.codexTitleLine { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.codexTitleLine h2 { color: #f5edda; font-size: 34px; line-height: 1.3; font-weight: 500; margin: 0; overflow-wrap: anywhere; }
+.codexSubtitle { margin-top: 8px; font-size: 13px; color: var(--codex-muted); }
+.codexSubtitle span { margin: 0 10px; color: #756a4c; }
+.codexMetrics { margin: 20px 0 0; padding-top: 18px; display: grid; grid-template-columns: 1.45fr 1fr 1fr; border-top: 1px solid #61573c; }
+.codexMetrics > div { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 4px 12px; padding: 0 18px; border-left: 1px solid #454734; }
+.codexMetrics > div:first-child { padding-left: 0; border-left: 0; }
+.codexMetrics svg { grid-row: 1 / 3; align-self: center; width: 26px; height: 26px; color: var(--codex-gold); stroke-width: 1.3; }
+.codexMetrics dt { color: var(--codex-muted); font-size: 12px; }
+.codexMetrics dd { margin: 0; font-size: 20px; font-variant-numeric: tabular-nums; line-height: 1.5; white-space: nowrap; }
+.salaryCodex .codexIconButton { display: inline-grid; place-items: center; flex: 0 0 40px; width: 40px; height: 40px; padding: 0; border: 1px solid #5e573f; border-radius: 2px; background: transparent; }
+.codexIconButton svg { width: 18px; height: 18px; }
+.codexIconButton[aria-pressed="true"] { color: var(--codex-gold); background: #27281d; }
+.codexTabs { display: flex; gap: 28px; padding: 0 28px; border-top: 1px solid #61573c; border-bottom: 1px solid #61573c; background: #181c18; }
+.codexTabs button { padding: 15px 2px 12px; min-height: 52px; background: transparent; border: 0; border-bottom: 3px solid transparent; color: var(--codex-muted); font-size: 14px; }
+.codexTabs button[aria-selected="true"] { color: #ead5a0; border-bottom-color: var(--codex-gold); }
+.codexTabs button span { margin-left: 8px; font-size: 11px; color: var(--codex-muted); }
+.codexLayout { display: grid; grid-template-columns: minmax(0, 1fr) 240px; }
+.codexInventory { min-width: 0; padding: 24px 24px 8px 28px; }
+.codexTools { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
+.salaryCodex h3 { margin: 0; color: #e8d5a7; font-size: 20px; font-weight: 500; }
+.codexControls { display: flex; flex-wrap: wrap; gap: 10px; }
+.codexSearch { display: flex; align-items: center; gap: 8px; width: 190px; min-width: 0; border: 1px solid #596055; border-radius: 3px; padding: 0 10px; background: #191e1b; }
+.codexSearch svg { width: 16px; height: 16px; color: #afb4ae; flex-shrink: 0; }
+.codexSearch input { width: 100%; min-width: 0; height: 38px; padding: 0; color: #eceeea; background: transparent; border: 0; font-size: 13px; }
+.codexControls select { width: 128px; max-width: none; height: 40px; padding: 0 8px; color: #eceeea; background: #191e1b; border: 1px solid #596055; border-radius: 3px; font-size: 13px; }
+.codexTable { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 13px; }
+.codexTable th { padding: 10px 12px; background: #242a25; font-size: 12px; font-weight: 400; color: #b9c0b9; text-align: left; border-bottom: 1px solid #4b5347; }
+.codexTable th:first-child { width: 56%; }
+.codexTable th:nth-child(2) { width: 18%; }
+.codexTable th:last-child { width: 26%; }
+.codexTable td { height: 61px; border-bottom: 1px solid var(--codex-line); padding: 5px 12px; color: #c1c8c1; overflow-wrap: anywhere; }
+.codexTable tr:has(.codexItemLink:hover) { background: #1e251e; }
+.codexItemLink { display: flex; gap: 12px; align-items: center; width: 100%; min-height: 50px; text-align: left; background: none; border: 0; padding: 0; }
+.codexItemLink img { width: 38px; height: 38px; flex: 0 0 38px; object-fit: contain; image-rendering: pixelated; }
+.codexItemLink > span { min-width: 0; color: #edece3; line-height: 1.5; overflow-wrap: anywhere; }
+.codexItemLink small { display: block; margin-top: 2px; font-size: 10px; color: #7f8b81; }
+.codexProbability { display: flex; align-items: center; gap: 12px; }
+.codexProbability strong { min-width: 48px; color: #dfe8df; font-size: 12px; font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.codexRateTrack { flex: 1; height: 5px; background: #313a32; overflow: hidden; border-radius: 1px; }
+.codexRateTrack > span { display: block; height: 100%; background: #53b98a; }
+.codexPagination { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 17px 0; color: var(--codex-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.codexPagination nav { display: flex; gap: 5px; }
+.codexPagination button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid transparent; border-radius: 2px; padding: 0; background: transparent; }
+.codexPagination .codexIconButton { width: 36px; height: 36px; border: 0; }
+.codexPagination [aria-current="page"] { border-color: #a18a51; color: #ead5a0; background: #282b20; }
+.codexPagination button:disabled { opacity: .3; cursor: default; }
+.salaryCodex button:not(:disabled):hover { color: #f2daa3; }
+.codexRare { min-width: 0; border-left: 1px solid #61573c; padding: 24px 20px; background: #141915; }
+.codexRare h3 { font-size: 18px; margin-bottom: 12px; }
+.codexRareItem { display: grid; grid-template-columns: 64px minmax(0, 1fr) 12px; align-items: center; gap: 10px; text-align: left; width: 100%; padding: 20px 0; border: 0; border-top: 1px solid #474b36; background: transparent; }
+.codexRareItem img { width: 64px; height: 64px; object-fit: contain; image-rendering: pixelated; }
+.codexRareItem b { display: block; font-weight: 400; color: #efe8d7; font-size: 14px; overflow-wrap: anywhere; }
+.codexRareItem small { display: block; color: var(--codex-muted); font-size: 11px; margin-top: 4px; }
+.codexRareItem strong { display: block; font-size: 13px; color: #76cba4; font-weight: 400; margin-top: 10px; }
+.codexRareItem svg { width: 12px; height: 12px; color: #928564; }
+.codexLedger { border-top: 1px solid #474b36; margin: 10px 0 0; padding-top: 16px; font-size: 12px; }
+.codexLedger > div { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.codexLedger dt { color: var(--codex-muted); }
+.codexLedger dd { margin: 0; color: #d9d8c8; }
+.codexFooter { display: flex; justify-content: space-between; gap: 12px; padding: 16px 28px; border-top: 1px solid #61573c; color: #899486; font-size: 10px; }
+.codexFooter > span:first-child { display: flex; align-items: center; gap: 8px; }
+.codexFooter svg { width: 13px; height: 13px; }
+.codexFooterDot { margin: 0 6px; }
+.codexSources { padding: 24px 28px; }
+.codexSources h3 { margin-bottom: 16px; }
+.codexSources .dropList { max-height: none; }
+.codexSources .origDropRow { background: #1a201b; border-color: #343b34; }
+.codexSources .origDropIcon { background: #0c100e; border-color: #4b5347; }
+.codexBackButton { display: inline-flex; align-items: center; gap: 8px; padding: 8px 0; margin-bottom: 14px; min-height: 44px; color: #d6bc7a; font-size: 13px; background: transparent; border: 0; }
+.codexBackButton svg { width: 16px; height: 16px; }
+.salaryCodex .codexEmpty { height: 240px; text-align: center; color: var(--codex-muted); }
+.codexEmpty svg { display: block; width: 24px; height: 24px; margin: 0 auto 12px; }
+
+@media (max-width: 900px) {
+  .codexHero { gap: 24px; grid-template-columns: 132px minmax(0, 1fr); }
+  .codexPortrait { width: 132px; height: 148px; }
+  .codexPortrait img { width: 96px; height: 96px; }
+  .codexMetrics > div { padding: 0 12px; gap: 4px 8px; grid-template-columns: 20px minmax(0, 1fr); }
+  .codexMetrics svg { width: 20px; height: 20px; }
+  .codexMetrics dd { font-size: 16px; }
+  .codexLayout { grid-template-columns: minmax(0, 1fr) 205px; }
+  .codexTools { align-items: flex-start; flex-direction: column; }
+  .codexControls { width: 100%; }
+  .codexSearch { flex: 1; }
+  .codexProbability { gap: 4px; }
+  .codexRateTrack { display: none; }
+  .codexRare { padding: 24px 14px; }
+  .codexRareItem { grid-template-columns: 48px minmax(0, 1fr); }
+  .codexRareItem img { width: 48px; height: 48px; }
+  .codexRareItem svg { display: none; }
+}
+
+@media (max-width: 620px) {
+  dialog.salaryCodexDialog { width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0; border: 0; border-radius: 0; }
+  .codexMasthead { height: 64px; padding-left: 18px; }
+  .codexMasthead > span:first-child { font-size: 21px; }
+  .codexMastheadLabel { display: none; }
+  .codexBreadcrumb { padding: 16px 18px 0; gap: 8px; font-size: 11px; }
+  .codexHero { grid-template-columns: 80px minmax(0, 1fr); align-items: start; padding: 22px 18px 24px; gap: 18px; }
+  .codexPortrait { width: 80px; height: 92px; margin-top: 2px; }
+  .codexPortrait img { width: 64px; height: 64px; }
+  .codexTitleLine { gap: 6px; }
+  .codexTitleLine h2 { font-size: 25px; }
+  .codexTitleLine .codexIconButton { flex-basis: 36px; width: 36px; height: 40px; border: 0; }
+  .codexSubtitle { font-size: 11px; }
+  .codexMetrics { grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 18px; padding-top: 14px; }
+  .codexMetrics > div, .codexMetrics > div:first-child { grid-template-columns: 18px minmax(0, 1fr) auto; padding: 0; gap: 8px; border: 0; align-items: center; }
+  .codexMetrics svg { grid-row: auto; width: 16px; height: 16px; }
+  .codexMetrics dt { font-size: 10px; }
+  .codexMetrics dd { font-size: 12px; }
+  .codexTabs { padding: 0 18px; gap: 24px; }
+  .codexLayout { grid-template-columns: minmax(0, 1fr); }
+  .codexInventory { padding: 22px 18px 4px; }
+  .codexTools { gap: 16px; }
+  .codexSearch { width: 0; }
+  .codexSearch input { height: 42px; font-size: 16px; }
+  .codexControls select { height: 44px; width: 130px; font-size: 14px; }
+  .codexTable .codexCategory { display: none; }
+  .codexTable th:first-child { width: 76%; }
+  .codexTable th:last-child { width: 24%; }
+  .codexTable th { padding: 10px 6px; font-size: 11px; }
+  .codexTable td { padding: 5px 6px; }
+  .codexItemLink { gap: 10px; font-size: 12px; }
+  .codexItemLink img { width: 34px; height: 34px; flex-basis: 34px; }
+  .codexProbability { justify-content: flex-end; }
+  .codexProbability strong { min-width: 0; font-size: 12px; }
+  .codexPagination { font-size: 11px; }
+  .codexPagination nav { gap: 2px; }
+  .codexPagination button, .codexPagination .codexIconButton { width: 34px; height: 44px; }
+  .codexRare { padding: 22px 18px; border-left: 0; border-top: 1px solid #61573c; }
+  .codexRareItem { grid-template-columns: 48px minmax(0, 1fr) 12px; gap: 14px; padding: 14px 0; }
+  .codexRareItem > span { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; }
+  .codexRareItem b { grid-column: 1; }
+  .codexRareItem small { grid-column: 1; margin: 0; }
+  .codexRareItem strong { grid-column: 2; grid-row: 1 / 3; margin: 0; }
+  .codexRareItem svg { display: block; }
+  .codexFooter { padding: 16px 18px; font-size: 9px; }
+  .codexSources { padding: 22px 18px; }
+}
+
 .filterFields { display: contents; }
 .itemLevel { margin-top: 8px; color: var(--muted); font-size: 12px; }
 .itemLevel strong { margin-left: 4px; color: #fbbf24; font-weight: 700; }

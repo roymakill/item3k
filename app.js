@@ -24,6 +24,7 @@ const SALARY_BAG_2_ID = "5592";
 const SALARY_BAG_5_ID = "5595";
 const SALARY_BAG_6_ID = "5596";
 const SALARY_BAG_7_ID = "5597";
+const SALARY_BAG_8_ID = "5598";
 const SALARY_BAG_1_CONTENTS = [
   ["9825", "4.00%"], ["9826", "4.00%"], ["9827", "4.00%"], ["9976", "4.00%"],
   ["9817", "4.00%"], ["9818", "4.00%"], ["5790", "4.00%"], ["5785", "4.00%"],
@@ -105,6 +106,14 @@ const SALARY_BAG_7_CONTENTS = [
   ["2819", "3.00%"], ["3802", "1.00%"], ["4016", "1.00%"], ["4005", "3.00%"],
   ["4006", "1.00%"], ["3613", "3.00%"],
 ].map(([real_id, percent]) => ({ real_id, percent }));
+const SALARY_BAG_8_CONTENTS = [
+  ["5006", "6.00%"], ["5032", "5.00%"], ["5031", "6.00%"], ["7589", "5.00%"],
+  ["5028", "3.50%"], ["5027", "4.00%"], ["7501", "1.00%"], ["7502", "1.00%"],
+  ["5736", "0.50%"], ["13", "5.00%"], ["3805", "5.00%"], ["2632", "5.00%"],
+  ["2727", "5.00%"], ["2446", "5.00%"], ["2456", "5.00%"], ["2423", "5.00%"],
+  ["2817", "5.00%"], ["4013", "1.00%"], ["4014", "1.00%"], ["4016", "1.00%"],
+  ["3602", "5.00%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
 const BAG_CONTENTS = {
   [SALARY_BAG_1_ID]: SALARY_BAG_1_CONTENTS,
   [SALARY_BAG_2_ID]: SALARY_BAG_2_CONTENTS,
@@ -114,6 +123,7 @@ const BAG_CONTENTS = {
   [SALARY_BAG_5_ID]: SALARY_BAG_5_CONTENTS,
   [SALARY_BAG_6_ID]: SALARY_BAG_6_CONTENTS,
   [SALARY_BAG_7_ID]: SALARY_BAG_7_CONTENTS,
+  [SALARY_BAG_8_ID]: SALARY_BAG_8_CONTENTS,
 };
 const BAG_GOLD = {
   [SALARY_BAG_1_ID]: "55,000 - 65,000",
@@ -123,6 +133,7 @@ const BAG_GOLD = {
   [SALARY_BAG_5_ID]: "25,000 - 45,000",
   [SALARY_BAG_6_ID]: "20,000 - 40,000",
   [SALARY_BAG_7_ID]: "15,000 - 35,000",
+  [SALARY_BAG_8_ID]: "10,000 - 30,000",
 };
 const BAG_EMPTY_CHANCE = {
   [SALARY_BAG_1_ID]: "28.70%",
@@ -132,6 +143,7 @@ const BAG_EMPTY_CHANCE = {
   [SALARY_BAG_5_ID]: "30.00%",
   [SALARY_BAG_6_ID]: "30.00%",
   [SALARY_BAG_7_ID]: "20.00%",
+  [SALARY_BAG_8_ID]: "20.00%",
 };
 
 const state = {
@@ -144,6 +156,8 @@ const state = {
   filtered: [],
   saved: JSON.parse(localStorage.getItem("3kdb_saved") || "{}"),
 };
+
+const codex = { row: null, query: "", sort: "rate_desc", page: 1 };
 
 const $ = (id) => document.getElementById(id);
 const els = {
@@ -412,6 +426,17 @@ function monsterCardHtml(row, index) {
 
 function openDetail(row) {
   const type = typeOf(row);
+  const isCodex = type === "item" && String(row.real_id) === SALARY_BAG_8_ID;
+  els.dialog.classList.toggle("salaryCodexDialog", isCodex);
+  els.dialog.scrollTop = 0;
+  if (isCodex) {
+    Object.assign(codex, { row, query: "", sort: "rate_desc", page: 1 });
+    els.detail.innerHTML = salaryCodexDetail(row);
+    renderCodexResults();
+    if (!els.dialog.open) els.dialog.showModal();
+    lucide.createIcons();
+    return;
+  }
   if (type === "monster") {
     els.detail.innerHTML = monsterDetail(row);
     els.dialog.showModal();
@@ -440,6 +465,90 @@ function openDetail(row) {
   </div>`;
   els.dialog.showModal();
   lucide.createIcons();
+}
+
+function codexEntries() {
+  return SALARY_BAG_8_CONTENTS.map((entry) => ({
+    ...entry,
+    item: state.items.find((item) => String(item.real_id) === entry.real_id),
+  })).filter((entry) => entry.item);
+}
+
+function codexItemImage(item, className = "") {
+  return `<img class="${className}" src="${escapeHtml(imageUrl(item, "item"))}" alt="${escapeHtml(item.name_th || item.code)}" ${imageEvents(item, "item")}>`;
+}
+
+function salaryCodexDetail(row) {
+  const rare = codexEntries().sort((a, b) => parseFloat(a.percent) - parseFloat(b.percent)
+    || Number(b.item.cat_key === "CAT_MOUNT") - Number(a.item.cat_key === "CAT_MOUNT"))
+    .slice(0, 3);
+  const saved = Boolean(state.saved[saveKey(row)]);
+  return `<article class="salaryCodex" aria-labelledby="codexTitle">
+    <div class="codexMasthead"><span>3K <b>DATA DB</b></span><span class="codexMastheadLabel">คลังไอเทม</span></div>
+    <div class="codexBreadcrumb"><i data-lucide="box"></i><span>ไอเทม</span><span>/</span><span>ถุงโชคดี</span><span>/</span><span>เบี้ยหวัดชั้น8</span></div>
+    <header class="codexHero">
+      <div class="codexPortrait">${codexItemImage(row)}</div>
+      <div class="codexIdentity">
+        <div class="codexTitleLine"><h2 id="codexTitle">${escapeHtml(row.name_th)}</h2><button type="button" class="codexIconButton" id="codexSave" data-codex-save aria-pressed="${saved}" title="${saved ? "นำออกจากบันทึก" : "บันทึกไอเทม"}" aria-label="${saved ? "นำออกจากบันทึก" : "บันทึกไอเทม"}"><i data-lucide="${saved ? "bookmark-check" : "bookmark"}"></i></button></div>
+        <div class="codexSubtitle">ถุงโชคดี <span>|</span> ID ${escapeHtml(row.real_id)}</div>
+        <dl class="codexMetrics">
+          <div><i data-lucide="coins"></i><dt>เงินในกล่อง</dt><dd>${BAG_GOLD[SALARY_BAG_8_ID]}</dd></div>
+          <div><i data-lucide="package-open"></i><dt>ไอเทม</dt><dd>${SALARY_BAG_8_CONTENTS.length} รายการ</dd></div>
+          <div><i data-lucide="dices"></i><dt>Nothing</dt><dd>${BAG_EMPTY_CHANCE[SALARY_BAG_8_ID]}</dd></div>
+        </dl>
+      </div>
+    </header>
+    <div class="codexTabs" role="tablist" aria-label="รายละเอียดกล่อง">
+      <button type="button" id="codexContentsTab" role="tab" aria-controls="codexContentsPanel" aria-selected="true" data-codex-tab="contents">ไอเทมในกล่อง <span>21</span></button>
+      <button type="button" id="codexSourcesTab" role="tab" aria-controls="codexSourcesPanel" aria-selected="false" tabindex="-1" data-codex-tab="sources">แหล่งดรอป</button>
+    </div>
+    <section id="codexContentsPanel" class="codexLayout" role="tabpanel" aria-labelledby="codexContentsTab">
+      <div class="codexInventory">
+        <div class="codexTools"><h3>ไอเทมในกล่อง</h3><div class="codexControls">
+          <label class="codexSearch"><i data-lucide="search"></i><input id="codexSearch" type="search" placeholder="ค้นหาไอเทม" aria-label="ค้นหาไอเทมในกล่อง" autocomplete="off"></label>
+          <select id="codexSort" aria-label="เรียงไอเทมในกล่อง"><option value="rate_desc">อัตราสูงสุด</option><option value="rate_asc">อัตราต่ำสุด</option><option value="name">ชื่อไอเทม</option></select>
+        </div></div>
+        <div id="codexResults"></div>
+      </div>
+      <aside class="codexRare" aria-labelledby="codexRareTitle"><h3 id="codexRareTitle">ไอเทมอัตราต่ำ</h3>${rare.map(({ item, percent }) => `<button type="button" class="codexRareItem" data-codex-item="${escapeHtml(item.real_id)}">${codexItemImage(item)}<span><b>${escapeHtml(item.name_th)}</b><small>${escapeHtml(item.cat_name)}</small><strong>${percent}</strong></span><i data-lucide="chevron-right"></i></button>`).join("")}
+        <dl class="codexLedger"><div><dt>Nothing</dt><dd>20.00%</dd></div><div><dt>รวมอัตราดรอป</dt><dd>100.00%</dd></div></dl>
+      </aside>
+    </section>
+    <section id="codexSourcesPanel" class="codexSources" role="tabpanel" aria-labelledby="codexSourcesTab" hidden><h3>แหล่งดรอป</h3><div class="dropList">${itemDrops(row)}</div></section>
+    <footer class="codexFooter"><span><i data-lucide="scroll-text"></i> DROP ID 2023</span><span>เบี้ยหวัดชั้น8 <span class="codexFooterDot">/</span> #5598</span></footer>
+  </article>`;
+}
+
+function renderCodexResults() {
+  const query = codex.query.trim().toLocaleLowerCase("th");
+  const entries = codexEntries().filter(({ item }) => `${item.name_th} ${item.real_id} ${item.code}`.toLocaleLowerCase("th").includes(query));
+  entries.sort((a, b) => codex.sort === "name" ? a.item.name_th.localeCompare(b.item.name_th, "th")
+    : (parseFloat(a.percent) - parseFloat(b.percent)) * (codex.sort === "rate_asc" ? 1 : -1));
+  const pageSize = 8;
+  const pages = Math.max(1, Math.ceil(entries.length / pageSize));
+  codex.page = Math.min(Math.max(1, codex.page), pages);
+  const start = (codex.page - 1) * pageSize;
+  const rows = entries.slice(start, start + pageSize);
+  $("codexResults").innerHTML = `<table class="codexTable"><thead><tr><th scope="col">ไอเทม</th><th scope="col" class="codexCategory">ประเภท</th><th scope="col">โอกาสได้รับ</th></tr></thead><tbody>${rows.map(({ item, percent }) => `<tr>
+    <td><button type="button" class="codexItemLink" data-codex-item="${escapeHtml(item.real_id)}">${codexItemImage(item)}<span>${escapeHtml(item.name_th)}<small>ID ${escapeHtml(item.real_id)}</small></span></button></td>
+    <td class="codexCategory">${escapeHtml(item.cat_name)}</td><td><div class="codexProbability"><strong>${percent}</strong><span class="codexRateTrack" aria-hidden="true"><span style="width:${parseFloat(percent)}%"></span></span></div></td>
+  </tr>`).join("") || `<tr><td colspan="3" class="codexEmpty"><i data-lucide="search-x"></i>ไม่พบไอเทม</td></tr>`}</tbody></table>
+  <div class="codexPagination"><span role="status">${entries.length ? start + 1 : 0}–${Math.min(start + pageSize, entries.length)} / ${entries.length} รายการ</span><nav aria-label="หน้าไอเทมในกล่อง">
+    <button type="button" class="codexIconButton" data-codex-page="${codex.page - 1}" ${codex.page === 1 ? "disabled" : ""} title="หน้าก่อน" aria-label="หน้าก่อน"><i data-lucide="chevron-left"></i></button>
+    ${Array.from({ length: pages }, (_, i) => `<button type="button" data-codex-page="${i + 1}" ${codex.page === i + 1 ? 'aria-current="page"' : ""} aria-label="หน้า ${i + 1}">${i + 1}</button>`).join("")}
+    <button type="button" class="codexIconButton" data-codex-page="${codex.page + 1}" ${codex.page === pages ? "disabled" : ""} title="หน้าถัดไป" aria-label="หน้าถัดไป"><i data-lucide="chevron-right"></i></button>
+  </nav></div>`;
+  lucide.createIcons();
+}
+
+function setCodexTab(tab) {
+  for (const button of els.detail.querySelectorAll("[data-codex-tab]")) {
+    const selected = button.dataset.codexTab === tab;
+    button.setAttribute("aria-selected", String(selected));
+    button.tabIndex = selected ? 0 : -1;
+  }
+  $("codexContentsPanel").hidden = tab !== "contents";
+  $("codexSourcesPanel").hidden = tab !== "sources";
 }
 
 function monsterDetail(row) {
@@ -890,6 +999,47 @@ document.addEventListener("click", (event) => {
 });
 
 els.detail.addEventListener("click", (event) => {
+  const tab = event.target.closest("[data-codex-tab]");
+  if (tab) {
+    setCodexTab(tab.dataset.codexTab);
+    return;
+  }
+  const page = event.target.closest("[data-codex-page]");
+  if (page && !page.disabled) {
+    codex.page = Number(page.dataset.codexPage);
+    renderCodexResults();
+    els.detail.querySelector(`[data-codex-page="${codex.page}"][aria-current]`)?.focus({ preventScroll: true });
+    return;
+  }
+  const itemButton = event.target.closest("[data-codex-item]");
+  if (itemButton) {
+    const item = state.items.find((item) => String(item.real_id) === itemButton.dataset.codexItem);
+    if (item) {
+      openDetail(item);
+      els.detail.querySelector(".detail").insertAdjacentHTML("afterbegin", `<button type="button" class="codexBackButton" data-codex-return><i data-lucide="arrow-left"></i>เบี้ยหวัดชั้น8</button>`);
+      lucide.createIcons();
+    }
+    return;
+  }
+  if (event.target.closest("[data-codex-return]")) {
+    openDetail(codex.row);
+    return;
+  }
+  if (event.target.closest("[data-codex-save]")) {
+    const key = saveKey(codex.row);
+    if (state.saved[key]) delete state.saved[key];
+    else state.saved[key] = { name: codex.row.name_th, time: Date.now() };
+    localStorage.setItem("3kdb_saved", JSON.stringify(state.saved));
+    const saved = Boolean(state.saved[key]);
+    const button = $("codexSave");
+    button.setAttribute("aria-pressed", String(saved));
+    button.title = saved ? "นำออกจากบันทึก" : "บันทึกไอเทม";
+    button.setAttribute("aria-label", button.title);
+    button.innerHTML = `<i data-lucide="${saved ? "bookmark-check" : "bookmark"}"></i>`;
+    render();
+    lucide.createIcons();
+    return;
+  }
   const member = event.target.closest("[data-open-monster]");
   if (member) {
     const monster = findMonsterByMapName(member.dataset.openMonster || "", member.dataset.openMonsterRole || "");
@@ -908,6 +1058,28 @@ els.detail.addEventListener("click", (event) => {
   els.search.value = search;
   applyFilters();
   window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+els.detail.addEventListener("input", (event) => {
+  if (event.target.id !== "codexSearch") return;
+  codex.query = event.target.value;
+  codex.page = 1;
+  renderCodexResults();
+});
+els.detail.addEventListener("change", (event) => {
+  if (event.target.id !== "codexSort") return;
+  codex.sort = event.target.value;
+  codex.page = 1;
+  renderCodexResults();
+});
+els.detail.addEventListener("keydown", (event) => {
+  const tab = event.target.closest("[data-codex-tab]");
+  if (!tab || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  event.preventDefault();
+  const target = event.key === "Home" ? "contents" : event.key === "End" ? "sources"
+    : tab.dataset.codexTab === "contents" ? "sources" : "contents";
+  setCodexTab(target);
+  els.detail.querySelector(`[data-codex-tab="${target}"]`).focus();
 });
 
 [els.search, els.cat, els.job, els.sort, els.min, els.max].forEach((el) => el.addEventListener("input", applyFilters));
