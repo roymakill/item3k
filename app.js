@@ -1,6 +1,11 @@
 const IMG_ITEM = "items/";
 const IMG_MONSTER = "boss/";
 const PAGE_SIZE = 20;
+const EXOTIC_MOUNT_BAG_ID = "7548";
+const EXOTIC_MOUNT_BAG_CONTENTS = [
+  ["4073", "14.00%"], ["4026", "12.00%"], ["4063", "12.00%"], ["4064", "12.00%"],
+  ["4066", "12.00%"], ["4011", "12.00%"], ["4071", "12.00%"], ["9606", "14.00%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
 const ZODIAC_BAG_ID = "11851";
 const ZODIAC_BAG_CONTENTS = [
   { real_id: "4439", name: "ยันต์วิญญาณ12นักษัตรชวด", percent: "1.00%" },
@@ -110,6 +115,7 @@ const SALARY_BAG_8_CONTENTS = [
   ["3602", "5.00%"],
 ].map(([real_id, percent]) => ({ real_id, percent }));
 const BAG_CONTENTS = {
+  [EXOTIC_MOUNT_BAG_ID]: EXOTIC_MOUNT_BAG_CONTENTS,
   [SALARY_BAG_1_ID]: SALARY_BAG_1_CONTENTS,
   [SALARY_BAG_2_ID]: SALARY_BAG_2_CONTENTS,
   [ZODIAC_BAG_ID]: ZODIAC_BAG_CONTENTS,
@@ -149,6 +155,10 @@ const SALARY_BAG_DROP_IDS = {
   [SALARY_BAG_6_ID]: "2021",
   [SALARY_BAG_7_ID]: "2022",
   [SALARY_BAG_8_ID]: "2023",
+};
+const CODEX_BAG_DROP_IDS = {
+  ...SALARY_BAG_DROP_IDS,
+  [EXOTIC_MOUNT_BAG_ID]: "2319",
 };
 
 const state = {
@@ -431,7 +441,7 @@ function monsterCardHtml(row, index) {
 
 function openDetail(row) {
   const type = typeOf(row);
-  const isCodex = type === "item" && Boolean(SALARY_BAG_DROP_IDS[String(row.real_id)]);
+  const isCodex = type === "item" && Boolean(CODEX_BAG_DROP_IDS[String(row.real_id)]);
   els.dialog.classList.toggle("salaryCodexDialog", isCodex);
   els.dialog.scrollTop = 0;
   if (isCodex) {
@@ -487,7 +497,7 @@ function salaryCodexDetail(row) {
   const real = String(row.real_id);
   const contents = BAG_CONTENTS[real];
   const total = (contents.reduce((sum, entry) => sum + Math.round(parseFloat(entry.percent) * 100), 0)
-    + Math.round(parseFloat(BAG_EMPTY_CHANCE[real]) * 100)) / 100;
+    + Math.round(parseFloat(BAG_EMPTY_CHANCE[real] || "0") * 100)) / 100;
   const rare = codexEntries(row).sort((a, b) => parseFloat(a.percent) - parseFloat(b.percent)
     || Number(b.item.cat_key === "CAT_MOUNT") - Number(a.item.cat_key === "CAT_MOUNT"))
     .slice(0, 3);
@@ -501,9 +511,13 @@ function salaryCodexDetail(row) {
         <div class="codexTitleLine"><h2 id="codexTitle">${escapeHtml(row.name_th)}</h2><button type="button" class="codexIconButton" id="codexSave" data-codex-save aria-pressed="${saved}" title="${saved ? "นำออกจากบันทึก" : "บันทึกไอเทม"}" aria-label="${saved ? "นำออกจากบันทึก" : "บันทึกไอเทม"}"><i data-lucide="${saved ? "bookmark-check" : "bookmark"}"></i></button></div>
         <div class="codexSubtitle">ถุงโชคดี <span>|</span> ID ${escapeHtml(row.real_id)}</div>
         <dl class="codexMetrics">
-          <div><i data-lucide="coins"></i><dt>เงินในกล่อง</dt><dd>${BAG_GOLD[real]}</dd></div>
+          ${BAG_GOLD[real]
+            ? `<div><i data-lucide="coins"></i><dt>เงินในกล่อง</dt><dd>${BAG_GOLD[real]}</dd></div>`
+            : `<div><i data-lucide="footprints"></i><dt>ประเภทรางวัล</dt><dd>พาหนะ</dd></div>`}
           <div><i data-lucide="package-open"></i><dt>ไอเทม</dt><dd>${contents.length} รายการ</dd></div>
-          <div><i data-lucide="dices"></i><dt>Nothing</dt><dd>${BAG_EMPTY_CHANCE[real]}</dd></div>
+          ${BAG_EMPTY_CHANCE[real]
+            ? `<div><i data-lucide="dices"></i><dt>Nothing</dt><dd>${BAG_EMPTY_CHANCE[real]}</dd></div>`
+            : `<div><i data-lucide="chart-no-axes-combined"></i><dt>รวมอัตราดรอป</dt><dd>${total.toFixed(2)}%</dd></div>`}
         </dl>
       </div>
     </header>
@@ -520,11 +534,11 @@ function salaryCodexDetail(row) {
         <div id="codexResults"></div>
       </div>
       <aside class="codexRare" aria-labelledby="codexRareTitle"><h3 id="codexRareTitle">ไอเทมอัตราต่ำ</h3>${rare.map(({ item, percent }) => `<button type="button" class="codexRareItem" data-codex-item="${escapeHtml(item.real_id)}">${codexItemImage(item)}<span><b>${escapeHtml(item.name_th)}</b><small>${escapeHtml(item.cat_name)}</small><strong>${percent}</strong></span><i data-lucide="chevron-right"></i></button>`).join("")}
-        <dl class="codexLedger"><div><dt>Nothing</dt><dd>${BAG_EMPTY_CHANCE[real]}</dd></div><div><dt>รวมอัตราตามไฟล์</dt><dd>${total.toFixed(2)}%</dd></div></dl>
+        <dl class="codexLedger">${BAG_EMPTY_CHANCE[real] ? `<div><dt>Nothing</dt><dd>${BAG_EMPTY_CHANCE[real]}</dd></div>` : ""}<div><dt>รวมอัตราตามไฟล์</dt><dd>${total.toFixed(2)}%</dd></div></dl>
       </aside>
     </section>
     <section id="codexSourcesPanel" class="codexSources" role="tabpanel" aria-labelledby="codexSourcesTab" hidden><h3>แหล่งดรอป</h3><div class="dropList">${itemDrops(row)}</div></section>
-    <footer class="codexFooter"><span><i data-lucide="scroll-text"></i> DROP ID ${SALARY_BAG_DROP_IDS[real]}</span><span>${escapeHtml(row.name_th)} <span class="codexFooterDot">/</span> #${escapeHtml(real)}</span></footer>
+    <footer class="codexFooter"><span><i data-lucide="scroll-text"></i> DROP ID ${CODEX_BAG_DROP_IDS[real]}</span><span>${escapeHtml(row.name_th)} <span class="codexFooterDot">/</span> #${escapeHtml(real)}</span></footer>
   </article>`;
 }
 
