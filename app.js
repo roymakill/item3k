@@ -2,6 +2,14 @@ const IMG_ITEM = "items/";
 const IMG_MONSTER = "boss/";
 const PAGE_SIZE = 20;
 const EXOTIC_MOUNT_BAG_ID = "7548";
+const SPIRIT_SOLDIER_BAG_ID = "7559";
+const SPIRIT_SOLDIER_BAG_CONTENTS = [
+  ["6964", "7.4425%"], ["6965", "7.4425%"], ["6966", "7.4425%"], ["6967", "7.4425%"],
+  ["6968", "7.4425%"], ["6969", "7.4425%"], ["6970", "7.4425%"], ["6971", "7.4425%"],
+  ["6972", "7.4425%"], ["6973", "7.4420%"], ["6974", "7.4425%"], ["6975", "7.4415%"],
+  ["6980", "7.4415%"], ["6976", "0.65%"], ["6977", "0.65%"], ["6978", "0.65%"],
+  ["6979", "0.65%"], ["6981", "0.65%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
 const EXOTIC_MOUNT_BAG_CONTENTS = [
   ["4073", "14.00%"], ["4026", "12.00%"], ["4063", "12.00%"], ["4064", "12.00%"],
   ["4066", "12.00%"], ["4011", "12.00%"], ["4071", "12.00%"], ["9606", "14.00%"],
@@ -115,6 +123,7 @@ const SALARY_BAG_8_CONTENTS = [
   ["3602", "5.00%"],
 ].map(([real_id, percent]) => ({ real_id, percent }));
 const BAG_CONTENTS = {
+  [SPIRIT_SOLDIER_BAG_ID]: SPIRIT_SOLDIER_BAG_CONTENTS,
   [EXOTIC_MOUNT_BAG_ID]: EXOTIC_MOUNT_BAG_CONTENTS,
   [SALARY_BAG_1_ID]: SALARY_BAG_1_CONTENTS,
   [SALARY_BAG_2_ID]: SALARY_BAG_2_CONTENTS,
@@ -159,6 +168,11 @@ const SALARY_BAG_DROP_IDS = {
 const CODEX_BAG_DROP_IDS = {
   ...SALARY_BAG_DROP_IDS,
   [EXOTIC_MOUNT_BAG_ID]: "2319",
+  [SPIRIT_SOLDIER_BAG_ID]: "2452",
+};
+const BAG_REWARD_TYPES = {
+  [EXOTIC_MOUNT_BAG_ID]: { icon: "footprints", name: "พาหนะ" },
+  [SPIRIT_SOLDIER_BAG_ID]: { icon: "shield", name: "ป้ายทหาร" },
 };
 
 const state = {
@@ -489,6 +503,11 @@ function codexEntries(row = codex.row) {
   })).filter((entry) => entry.item);
 }
 
+function bagRateTotal(real) {
+  const rates = BAG_CONTENTS[real].reduce((sum, entry) => sum + Math.round(parseFloat(entry.percent) * 1000000), 0);
+  return (rates + Math.round(parseFloat(BAG_EMPTY_CHANCE[real] || "0") * 1000000)) / 1000000;
+}
+
 function codexItemImage(item, className = "") {
   return `<img class="${className}" src="${escapeHtml(imageUrl(item, "item"))}" alt="${escapeHtml(item.name_th || item.code)}" ${imageEvents(item, "item")}>`;
 }
@@ -496,8 +515,7 @@ function codexItemImage(item, className = "") {
 function salaryCodexDetail(row) {
   const real = String(row.real_id);
   const contents = BAG_CONTENTS[real];
-  const total = (contents.reduce((sum, entry) => sum + Math.round(parseFloat(entry.percent) * 100), 0)
-    + Math.round(parseFloat(BAG_EMPTY_CHANCE[real] || "0") * 100)) / 100;
+  const total = bagRateTotal(real);
   const rare = codexEntries(row).sort((a, b) => parseFloat(a.percent) - parseFloat(b.percent)
     || Number(b.item.cat_key === "CAT_MOUNT") - Number(a.item.cat_key === "CAT_MOUNT"))
     .slice(0, 3);
@@ -513,7 +531,7 @@ function salaryCodexDetail(row) {
         <dl class="codexMetrics">
           ${BAG_GOLD[real]
             ? `<div><i data-lucide="coins"></i><dt>เงินในกล่อง</dt><dd>${BAG_GOLD[real]}</dd></div>`
-            : `<div><i data-lucide="footprints"></i><dt>ประเภทรางวัล</dt><dd>พาหนะ</dd></div>`}
+            : `<div><i data-lucide="${BAG_REWARD_TYPES[real].icon}"></i><dt>ประเภทรางวัล</dt><dd>${BAG_REWARD_TYPES[real].name}</dd></div>`}
           <div><i data-lucide="package-open"></i><dt>ไอเทม</dt><dd>${contents.length} รายการ</dd></div>
           ${BAG_EMPTY_CHANCE[real]
             ? `<div><i data-lucide="dices"></i><dt>Nothing</dt><dd>${BAG_EMPTY_CHANCE[real]}</dd></div>`
