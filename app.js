@@ -1,6 +1,13 @@
 const IMG_ITEM = "items/";
 const IMG_MONSTER = "boss/";
 const PAGE_SIZE = 20;
+const IMMORTAL_90_BAG_ID = "7330";
+const IMMORTAL_90_BAG_CONTENTS = [
+  ["845", "4.00%"], ["421", "4.00%"], ["847", "7.00%"], ["1416", "7.00%"],
+  ["1318", "2.00%"], ["1520", "2.00%"], ["1627", "6.00%"], ["1628", "8.00%"],
+  ["1629", "10.50%"], ["39", "10.50%"], ["237", "10.50%"], ["1219", "11.00%"],
+  ["1824", "1.00%"], ["1825", "10.50%"], ["40", "6.00%"],
+].map(([real_id, percent]) => ({ real_id, percent }));
 const EXOTIC_MOUNT_BAG_ID = "7548";
 const SPIRIT_SOLDIER_BAG_ID = "7559";
 const SPIRIT_SOLDIER_BAG_CONTENTS = [
@@ -123,6 +130,7 @@ const SALARY_BAG_8_CONTENTS = [
   ["3602", "5.00%"],
 ].map(([real_id, percent]) => ({ real_id, percent }));
 const BAG_CONTENTS = {
+  [IMMORTAL_90_BAG_ID]: IMMORTAL_90_BAG_CONTENTS,
   [SPIRIT_SOLDIER_BAG_ID]: SPIRIT_SOLDIER_BAG_CONTENTS,
   [EXOTIC_MOUNT_BAG_ID]: EXOTIC_MOUNT_BAG_CONTENTS,
   [SALARY_BAG_1_ID]: SALARY_BAG_1_CONTENTS,
@@ -166,11 +174,13 @@ const SALARY_BAG_DROP_IDS = {
   [SALARY_BAG_8_ID]: "2023",
 };
 const CODEX_BAG_DROP_IDS = {
+  [IMMORTAL_90_BAG_ID]: "2422",
   ...SALARY_BAG_DROP_IDS,
   [EXOTIC_MOUNT_BAG_ID]: "2319",
   [SPIRIT_SOLDIER_BAG_ID]: "2452",
 };
 const BAG_REWARD_TYPES = {
+  [IMMORTAL_90_BAG_ID]: { icon: "swords", name: "อาวุธ" },
   [EXOTIC_MOUNT_BAG_ID]: { icon: "footprints", name: "พาหนะ" },
   [SPIRIT_SOLDIER_BAG_ID]: { icon: "shield", name: "ป้ายทหาร" },
 };
